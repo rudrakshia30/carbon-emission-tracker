@@ -123,3 +123,16 @@ a {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ── Footnote Citation ────────────────────────────────────── */
+.carbon-footnote {
+  font-size: 11px;
+  color: var(--text-muted, #6b7280);
+  line-height: 1.4;
+  margin-top: 24px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  text-align: center;
+  font-style: italic;
+  width: 100%;
+}
