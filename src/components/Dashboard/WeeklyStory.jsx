@@ -14,7 +14,7 @@ import './WeeklyStory.css';
  * @param {Array} logs - All logs
  * @returns {string}
  */
-function generateTemplateStory(weeklyData, habitatState, logs) {
+function generateTemplateStory(weeklyData, habitatState, _logs) {
   const daysLogged = weeklyData.filter((d) => d.total > 0);
   if (daysLogged.length === 0) {
     return "Your island awaits your first week of adventures. Start logging your daily choices to watch your ecosystem come alive! 🏝️";
@@ -71,7 +71,12 @@ function generateTemplateStory(weeklyData, habitatState, logs) {
 export default function WeeklyStory({ weeklyData = [], habitatState = {}, logs = [], userName = 'Eco Friend' }) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [story, setStory] = useState(null);
-  const [apiKeyInput, setApiKeyInput] = useState(localStorage.getItem('gemini_api_key') || '');
+  const [apiKeyInput, setApiKeyInput] = useState(() => {
+    // Prefer env var, then sessionStorage (not localStorage — keys shouldn't persist across sessions)
+    const envKey = import.meta.env.VITE_GEMINI_API_KEY || '';
+    if (envKey) return '';
+    try { return sessionStorage.getItem('ct_gk') || ''; } catch { return ''; }
+  });
   const [showSettings, setShowSettings] = useState(false);
 
   const templateStory = useMemo(
@@ -84,14 +89,19 @@ export default function WeeklyStory({ weeklyData = [], habitatState = {}, logs =
   const handleSaveKey = (e) => {
     const val = e.target.value;
     setApiKeyInput(val);
-    localStorage.setItem('gemini_api_key', val);
+    // Store in sessionStorage (not localStorage) — clears on tab close, not persisted
+    try { sessionStorage.setItem('ct_gk', val.trim()); } catch { /* unavailable */ }
   };
 
   const handleGenerate = async () => {
     setIsGenerating(true);
     setStory(null);
 
-    const apiKey = (import.meta.env.VITE_GEMINI_API_KEY || localStorage.getItem('gemini_api_key') || '').trim();
+    const envKey = import.meta.env.VITE_GEMINI_API_KEY || '';
+    let apiKey = envKey.trim();
+    if (!apiKey) {
+      try { apiKey = sessionStorage.getItem('ct_gk') || ''; } catch { apiKey = ''; }
+    }
     if (!apiKey) {
       console.warn("No Gemini API key found (VITE_GEMINI_API_KEY or localStorage). Falling back to template story.");
       // Short delay for satisfying UX shimmer
