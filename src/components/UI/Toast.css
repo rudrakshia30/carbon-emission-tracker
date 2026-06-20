@@ -1,0 +1,123 @@
+/* ═══════════════════════════════════════════════════════════
+   Toast — Notification toast styles
+   ═══════════════════════════════════════════════════════════ */
+
+.toast {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-120%);
+  min-width: 280px;
+  max-width: 420px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(17, 24, 39, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.1));
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+  z-index: 10000;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+              opacity 0.3s ease;
+  opacity: 0;
+  font-family: 'Inter', sans-serif;
+  overflow: hidden;
+}
+
+.toast--visible {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.toast--exit {
+  transform: translateX(-50%) translateY(-120%);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* Accent border glow */
+.toast::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--toast-accent, #3b82f6);
+  border-radius: 14px 0 0 14px;
+}
+
+.toast__icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.toast__message {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary, #f9fafb);
+  line-height: 1.4;
+}
+
+.toast__close {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted, #6b7280);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.toast__close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary, #f9fafb);
+}
+
+/* Achievement confetti background */
+.toast__confetti-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.toast__sparkle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--toast-accent, #8b5cf6);
+  animation: toast-sparkle 2s ease-in-out infinite;
+  opacity: 0;
+}
+
+@keyframes toast-sparkle {
+  0%, 100% { opacity: 0; transform: scale(0); }
+  50% { opacity: 0.8; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    transition: opacity 0.2s ease;
+  }
+  .toast--visible {
+    transform: translateX(-50%) translateY(0);
+  }
+  .toast__sparkle {
+    animation: none;
+  }
+}
