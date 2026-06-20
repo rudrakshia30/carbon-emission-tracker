@@ -46,11 +46,10 @@ export default function SidebarWidgets({ microAction, onAcceptMicroAction }) {
     }
     
     const quoteIndex = Math.abs(hash) % QUOTES.length;
-    setQuoteOfDay(QUOTES[quoteIndex]);
-
-    const newsIndex1 = Math.abs(hash) % NEWS.length;
-    const newsIndex2 = (newsIndex1 + 1) % NEWS.length;
-    setNewsOfDay([NEWS[newsIndex1], NEWS[newsIndex2]]);
+    setTimeout(() => {
+      setQuoteOfDay(QUOTES[quoteIndex]);
+      setNewsOfDay([NEWS[newsIndex1], NEWS[newsIndex2]]);
+    }, 0);
   }, []);
 
   return (
