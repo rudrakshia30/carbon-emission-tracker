@@ -6,6 +6,11 @@ import {
   calculateShoppingCO2,
   calculateDailyTotal,
   getLocalDateString,
+  getCategoryPercentages,
+  getHealthScore,
+  calculateBaselineScore,
+  getWeeklyTotals,
+  getWeeklyAverage,
 } from './carbonCalculator';
 
 describe('Carbon Calculator Utilities', () => {
@@ -101,6 +106,87 @@ describe('Carbon Calculator Utilities', () => {
     it('should format today correctly when called with no arguments', () => {
       const todayStr = getLocalDateString();
       expect(todayStr).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    });
+  });
+  describe('getCategoryPercentages', () => {
+    it('should calculate correct percentages', () => {
+      const breakdown = { transport: 10, food: 5, energy: 3, shopping: 2, total: 20 };
+      expect(getCategoryPercentages(breakdown)).toEqual({
+        transport: 50,
+        food: 25,
+        energy: 15,
+        shopping: 10,
+      });
+    });
+
+    it('should return 0s if total is 0', () => {
+      const breakdown = { transport: 0, food: 0, energy: 0, shopping: 0, total: 0 };
+      expect(getCategoryPercentages(breakdown)).toEqual({
+        transport: 0,
+        food: 0,
+        energy: 0,
+        shopping: 0,
+      });
+    });
+  });
+
+  describe('getHealthScore', () => {
+    it('should return a score based on national average', () => {
+      // 22 kg is national average. (1 - 22/22) * 100 + 50 = 50
+      expect(getHealthScore(22)).toBe(50);
+      // 11 kg is half. (1 - 11/22) * 100 + 50 = 100
+      expect(getHealthScore(11)).toBe(100);
+      // 44 kg is double. (1 - 44/22) * 100 + 50 = -50 -> floored to 0
+      expect(getHealthScore(44)).toBe(0);
+    });
+  });
+
+  describe('calculateBaselineScore', () => {
+    it('should correctly estimate daily baseline from user data', () => {
+      const userData = {
+        transport: { mode: 'car_gasoline', dailyDistanceKm: 10 }, // 10 * 0.192 = 1.92
+        diet: 'vegan', // 0.4 * 3 = 1.2
+        energy: { acHoursPerDay: 2, longShowers: true, energyConscious: true } // 2*1 + 1 + 0 = 3
+      };
+      // Total = 1.92 + 1.2 + 3 = 6.12 -> rounds to 6.1
+      expect(calculateBaselineScore(userData)).toBeCloseTo(6.1);
+    });
+  });
+
+  describe('Weekly Aggregations', () => {
+    it('should calculate getWeeklyTotals and getWeeklyAverage accurately', () => {
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(today.getDate() - 1);
+      
+      // Use getLocalDateString to build the date prefix, appending a local time
+      // so the filter in getWeeklyTotals correctly matches local date
+      const todayStr = getLocalDateString(today);
+      const yesterdayStr = getLocalDateString(yesterday);
+
+      const logs = [
+        { date: todayStr + 'T10:00:00', totalCO2: 10.5 },
+        { date: yesterdayStr + 'T10:00:00', totalCO2: 5.5 },
+        { date: yesterdayStr + 'T18:00:00', totalCO2: 4.0 }, // second log for yesterday
+      ];
+
+      const totals = getWeeklyTotals(logs);
+      expect(totals.length).toBe(7); // Always returns 7 days
+      
+      // Last element is today
+      expect(totals[6].total).toBe(10.5);
+      expect(totals[6].hasLog).toBe(true);
+      
+      // Second to last is yesterday
+      expect(totals[5].total).toBe(9.5); // 5.5 + 4.0
+      expect(totals[5].hasLog).toBe(true);
+
+      // Third to last should be empty
+      expect(totals[4].total).toBe(0);
+      expect(totals[4].hasLog).toBe(false);
+
+      // Average should be (10.5 + 9.5) / 2 = 10
+      expect(getWeeklyAverage(logs)).toBe(10);
     });
   });
 });

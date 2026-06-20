@@ -6,6 +6,8 @@
 
 import { EMISSION_FACTORS, NATIONAL_AVG_DAILY_CO2 } from '../data/emissionFactors';
 
+export const DEMO_BASELINE_SCORE = 22.5;
+
 /**
  * Calculate CO2 from a single transport entry
  * @param {string} mode - Transport mode key
