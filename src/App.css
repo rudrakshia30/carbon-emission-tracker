@@ -45,6 +45,8 @@
   position: relative;
   z-index: 1;
   padding-bottom: 64px; /* space for bottom nav */
+  height: 100%;
+  min-height: 0;
 }
 
 .app__panel {
@@ -114,6 +116,27 @@
   font-size: 20px;
   font-weight: 700;
   color: var(--text-primary, #f9fafb);
+}
+
+.app__habitat-export-btn {
+  background: var(--glass, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.1));
+  color: var(--accent-green, #10b981);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.app__habitat-export-btn:hover {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.3);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.15);
 }
 
 .app__habitat-score {
