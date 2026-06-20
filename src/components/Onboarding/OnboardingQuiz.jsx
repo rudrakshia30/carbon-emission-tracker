@@ -5,6 +5,7 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { EMISSION_FACTORS } from '../../data/emissionFactors';
+import { sanitizeString, MAX_NAME_LENGTH } from '../../utils/security';
 import './OnboardingQuiz.css';
 
 const STEPS = ['welcome', 'name', 'transport', 'diet', 'energy', 'results'];
@@ -94,8 +95,8 @@ export default function OnboardingQuiz({ onComplete }) {
     const totalFrames = 60;
     const interval = setInterval(() => {
       frame++;
-      const progress = frame / totalFrames;
-      const eased = 1 - Math.pow(1 - progress, 3); // ease out cubic
+      const animPct = frame / totalFrames;
+      const eased = 1 - Math.pow(1 - animPct, 3); // ease out cubic
       setAnimatedScore(Math.round(target * eased * 10) / 10);
       if (frame >= totalFrames) clearInterval(interval);
     }, 16);
@@ -198,8 +199,8 @@ export default function OnboardingQuiz({ onComplete }) {
                 type="text"
                 placeholder=" "
                 value={name}
-                onChange={(e) => setName(e.target.value)}
-                maxLength={30}
+                onChange={(e) => setName(sanitizeString(e.target.value, MAX_NAME_LENGTH))}
+                maxLength={MAX_NAME_LENGTH}
                 autoComplete="off"
                 aria-label="Your name"
               />
