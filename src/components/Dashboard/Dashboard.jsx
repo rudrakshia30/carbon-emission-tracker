@@ -26,7 +26,7 @@ const CATEGORY_COLORS = {
 export default function Dashboard({ logs = [], streaks = { current: 0, best: 0 }, baselineScore = 22, habitatState = {}, userName = 'Eco Friend' }) {
   // Today's total
   const todayStr = getLocalDateString();
-  const todayLogs = logs.filter((l) => l.date?.startsWith(todayStr));
+  const todayLogs = logs.filter((l) => l.date && getLocalDateString(l.date) === todayStr);
   const todayTotal = todayLogs.reduce((s, l) => s + (l.totalCO2 || 0), 0);
   const todayRounded = Math.round(todayTotal * 10) / 10;
 
