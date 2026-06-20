@@ -8,7 +8,7 @@ import { useApp } from './context/AppContext';
 import OnboardingQuiz from './components/Onboarding/OnboardingQuiz';
 import HabitatCanvas from './components/Habitat/HabitatCanvas';
 import QuickLog from './components/QuickLog/QuickLog';
-import MicroAction from './components/QuickLog/MicroAction';
+import WeeklyStory from './components/Dashboard/WeeklyStory';
 import Dashboard from './components/Dashboard/Dashboard';
 import Leaderboard from './components/Leaderboard/Leaderboard';
 import Suggestions from './components/Suggestions/Suggestions';
