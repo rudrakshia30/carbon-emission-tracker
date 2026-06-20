@@ -1,0 +1,103 @@
+/**
+ * HabitatCanvas.css
+ * Styles for the animated island habitat canvas container.
+ * Keeps the canvas responsive and adds a premium glassmorphic glow frame.
+ */
+
+/* ── Container ────────────────────────────────────────────────────── */
+.habitat-canvas-container {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  border-radius: 20px;
+  overflow: hidden;
+  background: var(--bg-secondary, #111827);
+
+  /* Glassmorphism glow */
+  box-shadow:
+    0 0 40px rgba(16, 185, 129, 0.15),
+    0 0 80px rgba(16, 185, 129, 0.05),
+    inset 0 0 60px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.1));
+}
+
+/* ── Canvas ───────────────────────────────────────────────────────── */
+.habitat-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+}
+
+/* ── Loading shimmer ──────────────────────────────────────────────── */
+.habitat-canvas-container.is-loading::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  background: linear-gradient(
+    110deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.04) 50%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: habitat-shimmer 1.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes habitat-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Health indicator glow ring (dynamic via inline style) ────────── */
+.habitat-glow-ring {
+  position: absolute;
+  inset: -2px;
+  border-radius: 22px;
+  pointer-events: none;
+  z-index: 1;
+  transition: box-shadow 1.5s ease;
+}
+
+/* ── Accessibility: reduced motion ────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .habitat-canvas-container.is-loading::after {
+    animation: none;
+  }
+}
+
+/* ── Responsive tweaks ────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .habitat-canvas-container {
+    aspect-ratio: 4 / 3;
+    max-height: 360px;
+    border-radius: 14px;
+  }
+
+  .habitat-canvas {
+    border-radius: 14px;
+  }
+
+  .habitat-glow-ring {
+    border-radius: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .habitat-canvas-container {
+    aspect-ratio: 3 / 2;
+    max-height: 280px;
+    border-radius: 10px;
+  }
+
+  .habitat-canvas {
+    border-radius: 10px;
+  }
+
+  .habitat-glow-ring {
+    border-radius: 12px;
+  }
+}
