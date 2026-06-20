@@ -15,6 +15,7 @@ import Suggestions from './components/Suggestions/Suggestions';
 import SidebarWidgets from './components/Habitat/SidebarWidgets';
 import BottomNav from './components/UI/BottomNav';
 import Toast from './components/UI/Toast';
+import ErrorBoundary from './components/UI/ErrorBoundary';
 import { EMISSION_FACTORS } from './data/emissionFactors';
 import { getWeeklyAverage, getLocalDateString } from './utils/carbonCalculator';
 import { generateMicroAction } from './utils/microActionGenerator';
@@ -283,12 +284,14 @@ function App() {
           role="tabpanel"
           aria-labelledby="nav-tab-log"
         >
-          <QuickLog
-            onLog={handleLog}
-            emissionFactors={EMISSION_FACTORS}
-            baselineScore={state.user.baselineScore}
-            existingLog={existingLogForToday}
-          />
+          <ErrorBoundary>
+            <QuickLog
+              onLog={handleLog}
+              emissionFactors={EMISSION_FACTORS}
+              baselineScore={state.user.baselineScore}
+              existingLog={existingLogForToday}
+            />
+          </ErrorBoundary>
         </div>
 
         {/* Dashboard panel */}
@@ -298,13 +301,15 @@ function App() {
           role="tabpanel"
           aria-labelledby="nav-tab-dashboard"
         >
-          <Dashboard
-            logs={state.logs}
-            streaks={state.streaks}
-            baselineScore={state.user.baselineScore}
-            habitatState={state.habitat}
-            userName={state.user.name}
-          />
+          <ErrorBoundary>
+            <Dashboard
+              logs={state.logs}
+              streaks={state.streaks}
+              baselineScore={state.user.baselineScore}
+              habitatState={state.habitat}
+              userName={state.user.name}
+            />
+          </ErrorBoundary>
         </div>
 
         {/* Leaderboard panel */}
@@ -314,12 +319,14 @@ function App() {
           role="tabpanel"
           aria-labelledby="nav-tab-social"
         >
-          <Leaderboard
-            logs={state.logs}
-            currentStreak={state.streaks.current}
-            habitatState={state.habitat}
-            userWeeklyCO2={userWeeklyCO2}
-          />
+          <ErrorBoundary>
+            <Leaderboard
+              logs={state.logs}
+              currentStreak={state.streaks.current}
+              habitatState={state.habitat}
+              userWeeklyCO2={userWeeklyCO2}
+            />
+          </ErrorBoundary>
         </div>
 
         {/* Suggestions panel */}
@@ -329,7 +336,9 @@ function App() {
           role="tabpanel"
           aria-labelledby="nav-tab-suggestions"
         >
-          <Suggestions logs={state.logs} />
+          <ErrorBoundary>
+            <Suggestions logs={state.logs} />
+          </ErrorBoundary>
         </div>
       </main>
 
