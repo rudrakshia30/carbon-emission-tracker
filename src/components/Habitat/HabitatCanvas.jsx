@@ -82,7 +82,7 @@ function seededRandom(seed) {
   };
 }
 
-const HabitatCanvas = forwardRef(function HabitatCanvas({ 
+const HabitatCanvas = forwardRef(function HabitatCanvasInner({ 
   habitatState, 
   onReady,
   manualTime = null,
