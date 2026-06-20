@@ -176,7 +176,7 @@ export function getWeeklyTotals(logs) {
     const dateStr = getLocalDateString(date);
 
     const dayLogs = logs.filter(
-      (log) => log.date && log.date.startsWith(dateStr)
+      (log) => log.date && getLocalDateString(log.date) === dateStr
     );
 
     const total = dayLogs.reduce((sum, log) => sum + (log.totalCO2 || 0), 0);
