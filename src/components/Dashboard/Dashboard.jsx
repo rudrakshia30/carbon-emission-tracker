@@ -4,7 +4,7 @@
  */
 
 import { useMemo } from 'react';
-import { getWeeklyTotals, getWeeklyAverage, getCategoryPercentages } from '../../utils/carbonCalculator';
+import { getWeeklyTotals, getWeeklyAverage, getCategoryPercentages, getLocalDateString } from '../../utils/carbonCalculator';
 import { generateInsights } from '../../utils/insightGenerator';
 import WeeklyStory from './WeeklyStory';
 import './Dashboard.css';
@@ -23,9 +23,9 @@ const CATEGORY_COLORS = {
  * @param {number} props.baselineScore - User's baseline daily CO2
  * @param {Object} props.habitatState - Current habitat state
  */
-export default function Dashboard({ logs = [], streaks = { current: 0, best: 0 }, baselineScore = 22, habitatState = {} }) {
+export default function Dashboard({ logs = [], streaks = { current: 0, best: 0 }, baselineScore = 22, habitatState = {}, userName = 'Eco Friend' }) {
   // Today's total
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = getLocalDateString();
   const todayLogs = logs.filter((l) => l.date?.startsWith(todayStr));
   const todayTotal = todayLogs.reduce((s, l) => s + (l.totalCO2 || 0), 0);
   const todayRounded = Math.round(todayTotal * 10) / 10;
@@ -33,6 +33,8 @@ export default function Dashboard({ logs = [], streaks = { current: 0, best: 0 }
   // Score ring percentage (vs baseline target)
   const scorePercent = Math.min(100, Math.round((todayTotal / baselineScore) * 100));
   const scoreColor = scorePercent < 50 ? '#10b981' : scorePercent < 80 ? '#f59e0b' : '#ef4444';
+  const scoreIcon = scorePercent < 50 ? '🌟' : scorePercent < 80 ? '⚠️' : '🚨';
+  const scoreStatusText = scorePercent < 50 ? 'Excellent' : scorePercent < 80 ? 'Fair' : 'High Emissions';
   const circumference = 2 * Math.PI * 54;
   const dashOffset = circumference - (scorePercent / 100) * circumference;
 
@@ -81,13 +83,14 @@ export default function Dashboard({ logs = [], streaks = { current: 0, best: 0 }
             />
           </svg>
           <div className="dash-ring-center">
+            <span className="dash-ring-status-icon" aria-label={`Status: ${scoreStatusText}`}>{scoreIcon}</span>
             <span className="dash-ring-value" style={{ color: scoreColor }}>
               {todayRounded}
             </span>
             <span className="dash-ring-unit">kg CO₂</span>
           </div>
         </div>
-        <p className="dash-score-label">
+        <p className="dash-score-label" aria-live="polite">
           {todayTotal === 0
             ? 'No logs today yet'
             : `${scorePercent}% of your ${baselineScore}kg target`}
@@ -186,7 +189,12 @@ export default function Dashboard({ logs = [], streaks = { current: 0, best: 0 }
         weeklyData={weeklyTotals}
         habitatState={habitatState}
         logs={logs}
+        userName={userName}
       />
+
+      <p className="carbon-footnote">
+        Emission factors verified against IPCC, US EPA, & UK DEFRA (2024). Daily per-capita target benchmarked against IEA statistics.
+      </p>
     </div>
   );
 }
