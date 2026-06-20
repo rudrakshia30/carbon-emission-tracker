@@ -1,0 +1,117 @@
+.suggestions {
+  padding: 1.5rem;
+  padding-bottom: 6rem;
+  color: var(--color-text-primary);
+  animation: fade-in 0.3s ease-out;
+}
+
+.suggestions__header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.suggestions__title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #10b981, #059669);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.suggestions__subtitle {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+/* Card */
+.sug-card {
+  position: relative;
+  background: var(--color-panel-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 2rem;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.sug-card__glow {
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 100px;
+  height: 100px;
+  background: var(--color-accent);
+  filter: blur(80px);
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.sug-card__title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--color-accent);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sug-card__desc {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  margin-bottom: 2rem;
+}
+
+/* Tips */
+.sug-tips {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.sug-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.sug-tip:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.sug-tip__icon-wrapper {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  font-size: 1.2rem;
+}
+
+.sug-tip__content {
+  flex-grow: 1;
+}
+
+.sug-tip__text {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--color-text-primary);
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
