@@ -104,7 +104,7 @@ const HabitatCanvas = forwardRef(function HabitatCanvas({
     smogLevel: 0.2, waterClarity: 0.8, hasRainbow: false, particles: [],
   };
 
-  /** Expose triggerEffect to parent via ref */
+  /** Expose triggerEffect and exportToPNG to parent via ref */
   useImperativeHandle(ref, () => ({
     triggerEffect(type) {
       const cx = widthRef.current / 2;
@@ -131,6 +131,11 @@ const HabitatCanvas = forwardRef(function HabitatCanvas({
         });
       }
     },
+    exportToPNG() {
+      const canvas = canvasRef.current;
+      if (!canvas) return null;
+      return canvas.toDataURL('image/png');
+    }
   }));
 
   /** Draw the full scene */
@@ -181,8 +186,8 @@ const HabitatCanvas = forwardRef(function HabitatCanvas({
 
     // ── Celestial Body (Sun/Moon moving in an arc) ───
     const isDaylight = hour >= 6 && hour < 18.5;
-    let celestialX = w * 0.5;
-    let celestialY = h * 0.58;
+    let celestialX;
+    let celestialY;
     
     if (isDaylight) {
       // Sun trajectory arc
@@ -431,7 +436,7 @@ const HabitatCanvas = forwardRef(function HabitatCanvas({
 
     // Use ResizeObserver for robust layout responsiveness
     const resize = (entries) => {
-      let rect = null;
+      let rect;
       if (entries && entries[0]) {
         rect = entries[0].contentRect;
       } else {
@@ -458,24 +463,38 @@ const HabitatCanvas = forwardRef(function HabitatCanvas({
     // Initial resize trigger
     resize();
 
+    let isVisible = !document.hidden;
+
     const loop = () => {
       if (!running) return;
       
-      // Only draw if we have a valid width and height
-      if (widthRef.current > 0 && heightRef.current > 0) {
+      if (isVisible && widthRef.current > 0 && heightRef.current > 0) {
         timeRef.current += 16;
         draw(ctx, widthRef.current, heightRef.current, timeRef.current);
+        animFrameRef.current = requestAnimationFrame(loop);
       }
-      
-      animFrameRef.current = requestAnimationFrame(loop);
     };
 
-    loop();
+    const handleVisibilityChange = () => {
+      const wasVisible = isVisible;
+      isVisible = !document.hidden;
+      // Resume the loop if it just became visible and is supposed to be running
+      if (isVisible && !wasVisible && running) {
+        loop();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    if (isVisible) {
+      loop();
+    }
     if (onReady) onReady();
 
     return () => {
       running = false;
       resizeObserver.disconnect();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
   }, [draw, onReady]);
@@ -485,7 +504,7 @@ const HabitatCanvas = forwardRef(function HabitatCanvas({
       ref={containerRef}
       className="habitat-canvas-container"
       role="img"
-      aria-label={`Your island habitat with health score ${state.healthScore}%, ${state.trees} trees, and ${state.flowers} flowers`}
+      aria-label={`Your island habitat with health score ${state.healthScore}%, ${state.trees} trees, ${state.flowers} flowers, air quality: ${state.smogLevel > 0.7 ? 'smoggy' : state.smogLevel > 0.3 ? 'hazy' : 'clear'}, and water clarity: ${state.waterClarity > 0.7 ? 'crystal clear' : state.waterClarity > 0.3 ? 'cloudy' : 'murky'}`}
     >
       <canvas ref={canvasRef} className="habitat-canvas" />
       <div
