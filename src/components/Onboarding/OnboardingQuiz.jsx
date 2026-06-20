@@ -66,15 +66,15 @@ export default function OnboardingQuiz({ onComplete }) {
     setStep((s) => Math.max(s - 1, 0));
   }, []);
 
-  /** One-click demo: fills all fields with realistic sample data and jumps to results */
+  /** One-click demo: fills all fields with average lifestyle data (~22 kg CO₂/day) and jumps to results */
   const handleDemoFill = useCallback(() => {
-    setName('Rudrakshi');
-    setTransportMode('bicycle');
-    setDailyKm(5);
-    setDiet('vegetarian');
-    setAcHours(2);
-    setLongShowers(false);
-    setEnergyConscious(true);
+    setName('Alex');
+    setTransportMode('car');      // 0.192 kg/km
+    setDailyKm(22);               // 0.192 × 22 = 3.84 kg
+    setDiet('omnivore');          // 3.6 × 3 meals = 10.8 kg
+    setAcHours(4);                // 4.0 kg
+    setLongShowers(true);         // +1.0 kg
+    setEnergyConscious(false);    // +2.0 kg  → total ≈ 21.6 kg
     // Jump straight to the results step
     setStep(STEPS.length - 1);
   }, []);
