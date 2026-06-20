@@ -9,6 +9,7 @@ import { createContext, useContext, useReducer, useEffect, useCallback } from 'r
 import { calculateDailyTotal, getLocalDateString } from '../utils/carbonCalculator';
 import { calculateHabitatState } from '../components/Habitat/habitatEngine';
 import { calculateStreak } from '../utils/streakCalculator';
+import { validatePersistedState } from '../utils/security';
 
 const AppContext = createContext(null);
 
@@ -195,9 +196,8 @@ function loadPersistedState() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
-    // Basic validation
-    if (typeof parsed !== 'object' || parsed === null) return null;
-    return parsed;
+    // Validate and sanitize before trusting — rejects tampered/corrupted data
+    return validatePersistedState(parsed);
   } catch {
     return null;
   }
