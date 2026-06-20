@@ -16,7 +16,7 @@ import SidebarWidgets from './components/Habitat/SidebarWidgets';
 import BottomNav from './components/UI/BottomNav';
 import Toast from './components/UI/Toast';
 import { EMISSION_FACTORS } from './data/emissionFactors';
-import { getWeeklyAverage } from './utils/carbonCalculator';
+import { getWeeklyAverage, getLocalDateString } from './utils/carbonCalculator';
 import { generateMicroAction } from './utils/microActionGenerator';
 import './App.css';
 
@@ -40,7 +40,7 @@ function App() {
   const [showEcoHome, setShowEcoHome] = useState(true);
 
   // Find existing log for today to pre-populate QuickLog
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = getLocalDateString();
   const existingLogForToday = useMemo(() => {
     return state.logs.find(l => l.date && l.date.startsWith(todayStr));
   }, [state.logs, todayStr]);
@@ -95,6 +95,26 @@ function App() {
     });
   };
 
+  const handleExportImage = () => {
+    if (habitatRef.current) {
+      const dataURL = habitatRef.current.exportToPNG();
+      if (dataURL) {
+        const link = document.createElement('a');
+        link.download = `${state.user.name}-island.png`;
+        link.href = dataURL;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        addToast({
+          message: 'Island snapshot saved! 📸',
+          type: 'success',
+          icon: '🖼️',
+        });
+      }
+    }
+  };
+
   /* ── Render panels ───────────────────────────────── */
   return (
     <div className="app">
@@ -141,9 +161,19 @@ function App() {
             <div className="app__habitat-main">
               <div className="app__habitat-header">
                 <h1 className="app__habitat-title">🏝️ Your Island</h1>
-                <div className="app__habitat-score">
-                  <span className="app__habitat-score-dot" />
-                  Health: {state.habitat.healthScore}%
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <button
+                    className="app__habitat-export-btn"
+                    onClick={handleExportImage}
+                    title="Export Island as PNG"
+                    type="button"
+                  >
+                    📸 Share
+                  </button>
+                  <div className="app__habitat-score">
+                    <span className="app__habitat-score-dot" />
+                    Health: {state.habitat.healthScore}%
+                  </div>
                 </div>
               </div>
 
@@ -156,7 +186,7 @@ function App() {
             />
 
             <p className="app__habitat-name">
-              <strong>{state.user.name}'s</strong> island · {state.habitat.trees} trees · {state.habitat.flowers} flowers
+              <strong>{state.user.name}'s</strong> island · {state.habitat.trees} trees · {state.habitat.flowers} flowers · Air: {state.habitat.smogLevel > 0.7 ? '🌫️ Smoggy' : state.habitat.smogLevel > 0.3 ? '🌤️ Hazy' : '☀️ Clear'} · Water: {state.habitat.waterClarity > 0.7 ? '💧 Crystal' : state.habitat.waterClarity > 0.3 ? '🌊 Cloudy' : '🟫 Murky'}
             </p>
 
             {/* Simulation Controls Panel */}
@@ -273,6 +303,7 @@ function App() {
             streaks={state.streaks}
             baselineScore={state.user.baselineScore}
             habitatState={state.habitat}
+            userName={state.user.name}
           />
         </div>
 
