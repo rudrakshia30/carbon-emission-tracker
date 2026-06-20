@@ -68,7 +68,7 @@ function generateTemplateStory(weeklyData, habitatState, logs) {
  * @param {Object} props.habitatState - Current habitat state
  * @param {Array} props.logs - All logs
  */
-export default function WeeklyStory({ weeklyData = [], habitatState = {}, userName = 'Eco Friend' }) {
+export default function WeeklyStory({ weeklyData = [], habitatState = {}, logs = [], userName = 'Eco Friend' }) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [story, setStory] = useState(null);
   const [apiKeyInput, setApiKeyInput] = useState(localStorage.getItem('gemini_api_key') || '');
