@@ -423,7 +423,18 @@ const HabitatCanvas = forwardRef(function HabitatCanvas({
     ctx.globalAlpha = 1;
     particlesRef.current = activeParticles;
 
-  }, [state, manualTime, windSpeed, showEcoHome]);
+  }, [
+    state?.healthScore,
+    state?.trees,
+    state?.flowers,
+    state?.birds,
+    state?.smogLevel,
+    state?.waterClarity,
+    state?.hasRainbow,
+    manualTime,
+    windSpeed,
+    showEcoHome
+  ]);
 
   /** Animation loop */
   useEffect(() => {
