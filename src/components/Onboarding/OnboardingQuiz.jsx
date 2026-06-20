@@ -66,6 +66,19 @@ export default function OnboardingQuiz({ onComplete }) {
     setStep((s) => Math.max(s - 1, 0));
   }, []);
 
+  /** One-click demo: fills all fields with realistic sample data and jumps to results */
+  const handleDemoFill = useCallback(() => {
+    setName('Rudrakshi');
+    setTransportMode('bicycle');
+    setDailyKm(5);
+    setDiet('vegetarian');
+    setAcHours(2);
+    setLongShowers(false);
+    setEnergyConscious(true);
+    // Jump straight to the results step
+    setStep(STEPS.length - 1);
+  }, []);
+
   /** Animate the score counter on results step */
   useEffect(() => {
     if (stepName !== 'results') return;
@@ -109,6 +122,20 @@ export default function OnboardingQuiz({ onComplete }) {
 
   return (
     <div className="onboarding-quiz" role="main" aria-label="Onboarding quiz">
+      {/* Persistent floating Demo Fill button — visible on all non-results steps */}
+      {stepName !== 'results' && (
+        <div className="oq-demo-fab-wrapper">
+          <button
+            id="oq-btn-demo-fab"
+            className="oq-demo-fab"
+            onClick={handleDemoFill}
+            aria-label="Auto-fill quiz with demo data"
+            title="Fill quiz instantly with sample eco-friendly data"
+          >
+            ⚡ Demo Fill
+          </button>
+        </div>
+      )}
       {/* Progress bar */}
       {step > 0 && step < STEPS.length - 1 && (
         <div className="oq-progress">
@@ -146,6 +173,15 @@ export default function OnboardingQuiz({ onComplete }) {
               >
                 🌿 Begin Your Journey
               </button>
+              <button
+                id="oq-btn-demo"
+                className="oq-btn-demo"
+                onClick={handleDemoFill}
+                aria-label="Auto-fill with demo data"
+              >
+                ⚡ Demo Fill
+              </button>
+              <p className="oq-demo-hint">Instantly fills the quiz with sample eco-friendly data</p>
             </div>
           </div>
         </div>
