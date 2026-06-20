@@ -124,7 +124,7 @@ export default function Dashboard({ logs = [], streaks = { current: 0, best: 0 }
       <section className="dash-card" aria-label="7-day trend">
         <h3 className="dash-card-title">📈 7-Day Trend</h3>
         <div className="dash-chart">
-          {weeklyTotals.map((day, i) => (
+          {weeklyTotals.map((day) => (
             <div key={day.date} className="dash-chart-col">
               <div className="dash-chart-bar-container">
                 <div
