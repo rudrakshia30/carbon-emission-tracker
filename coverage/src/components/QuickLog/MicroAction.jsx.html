@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">92.85% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/14</span>
+                <span class='fraction'>13/14</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">92.85% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/14</span>
+                <span class='fraction'>13/14</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">75% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>3/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/10</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -141,22 +141,22 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -203,23 +203,23 @@ import './MicroAction.css';
  * @param {Function} [props.onAccept] - Called when user accepts
  * @param {Function} [props.onDismiss] - Called when user dismisses
  */
-export default function <span class="fstat-no" title="function not covered" >MicroAction({</span> suggestion, onAccept, onDismiss }) {
-  const [state, <span class="cstat-no" title="statement not covered" >setState] = useState('idle'); // 'idle' | 'accepted' | 'dismissed'</span>
+export default function MicroAction({ suggestion, onAccept, onDismiss }) {
+  const [state, setState] = useState('idle'); // 'idle' | 'accepted' | 'dismissed'
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  if (!suggestion || state === 'dismissed') <span class="cstat-no" title="statement not covered" >return null;</span></span>
+  if (!suggestion || state === 'dismissed') return null;
 &nbsp;
-  const <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >handleAccept = () =&gt; {</span></span>
-<span class="cstat-no" title="statement not covered" >    setState('accepted');</span>
-<span class="cstat-no" title="statement not covered" >    if (onAccept) <span class="cstat-no" title="statement not covered" >onAccept(suggestion);</span></span>
-<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >    setTimeout(() =&gt; <span class="cstat-no" title="statement not covered" >s</span>etState('dismissed'), 2</span>000);</span>
+  const handleAccept = () =&gt; {
+    setState('accepted');
+    if (onAccept) onAccept(suggestion);
+<span class="fstat-no" title="function not covered" >    setTimeout(() =&gt; <span class="cstat-no" title="statement not covered" >s</span>etState('dismissed'), 2</span>000);
   };
 &nbsp;
-  const <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >handleDismiss = () =&gt; {</span></span>
-<span class="cstat-no" title="statement not covered" >    setState('dismissed');</span>
-<span class="cstat-no" title="statement not covered" >    if (onDismiss) <span class="cstat-no" title="statement not covered" >onDismiss();</span></span>
+  const handleDismiss = () =&gt; {
+    setState('dismissed');
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (onDismiss) onDismiss();
   };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return (</span>
+  return (
     &lt;div className={`micro-action ${state === 'accepted' ? 'micro-action--accepted' : ''}`} role="complementary" aria-label="Daily suggestion"&gt;
       &lt;span className="micro-action__icon" aria-hidden="true"&gt;{suggestion.icon}&lt;/span&gt;
       &lt;div className="micro-action__content"&gt;
@@ -259,7 +259,7 @@ export default function <span class="fstat-no" title="function not covered" >Mic
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-06-20T20:44:51.580Z
+                at 2026-06-20T21:06:01.890Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

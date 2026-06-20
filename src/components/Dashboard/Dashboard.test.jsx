@@ -1,8 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import Dashboard from './Dashboard';
-import { DEMO_BASELINE_SCORE } from '../../utils/carbonCalculator';
-import { getLocalDateString } from '../../utils/carbonCalculator';
+import { DEMO_BASELINE_SCORE, getLocalDateString } from '../../utils/carbonCalculator';
 
 describe('Dashboard Component', () => {
   it('renders "No logs today yet" when there are no logs', () => {
