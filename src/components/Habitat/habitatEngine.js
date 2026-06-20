@@ -9,6 +9,8 @@
  * @module habitatEngine
  */
 
+import { getLocalDateString } from '../../utils/carbonCalculator';
+
 /** National average daily CO₂ emissions in kg (India context) */
 const NATIONAL_AVG_DAILY_CO2 = 22;
 
@@ -39,7 +41,7 @@ function getRecentAvgCO2(logs) {
   // Group by day and sum
   const dailyTotals = {};
   recentLogs.forEach((log) => {
-    const dayKey = new Date(log.date).toISOString().split('T')[0];
+    const dayKey = getLocalDateString(log.date);
     dailyTotals[dayKey] = (dailyTotals[dayKey] || 0) + (log.totalCO2 || log.total || 0);
   });
 
