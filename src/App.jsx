@@ -43,7 +43,7 @@ function App() {
   // Find existing log for today to pre-populate QuickLog
   const todayStr = getLocalDateString();
   const existingLogForToday = useMemo(() => {
-    return state.logs.find(l => l.date && l.date.startsWith(todayStr));
+    return state.logs.find(l => l.date && getLocalDateString(l.date) === todayStr);
   }, [state.logs, todayStr]);
 
   // Generate daily micro-action suggestion
