@@ -109,3 +109,61 @@
     animation: none;
   }
 }
+
+.weekly-story__settings-toggle {
+  margin-top: 12px;
+  text-align: right;
+}
+
+.weekly-story__settings-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted, #6b7280);
+  font-size: 11px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.weekly-story__settings-btn:hover {
+  color: var(--text-secondary, #9ca3af);
+}
+
+.weekly-story__settings {
+  margin-top: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.weekly-story__settings-label {
+  font-size: 11px;
+  color: var(--text-secondary, #9ca3af);
+  font-weight: 500;
+  text-align: left;
+}
+
+.weekly-story__settings-input {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-primary, #f9fafb);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  outline: none;
+  font-family: monospace;
+}
+
+.weekly-story__settings-input:focus {
+  border-color: var(--accent-green, #10b981);
+}
+
+.weekly-story__settings-tip {
+  font-size: 10px;
+  color: var(--text-muted, #6b7280);
+  margin: 0;
+  text-align: left;
+}
