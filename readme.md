@@ -392,28 +392,6 @@ npm run build
 ```
 
 ---
-
-## ▲ Deploy on Vercel
-
-### Method 1: Deploy from GitHub
-
-1. Push the latest project code to GitHub.
-2. Sign in to [Vercel](https://vercel.com/) using GitHub.
-3. Select **Add New → Project**.
-4. Import the `carbon-emission-tracker` repository.
-5. Use the following settings:
-
-```text
-Framework Preset: Vite
-Build Command: npm run build
-Output Directory: dist
-Install Command: npm install
-```
-
-6. Set the **Root Directory** to the folder containing `package.json`.
-7. Leave environment variables empty for the first secure frontend deployment.
-8. Select **Deploy**.
-
 ### Method 2: Deploy using the Vercel CLI
 
 Install the CLI:
