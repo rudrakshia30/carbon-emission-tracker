@@ -93,7 +93,7 @@ function appReducer(state, action) {
       };
 
     case ACTIONS.ADD_LOG: {
-      const breakdown = calculateDailyTotal(action.payload);
+      const breakdown = calculateDailyTotal(action.payload, state.user?.region || 'global');
       const todayKey = getLocalDateString();
 
       // Find index of existing log for today

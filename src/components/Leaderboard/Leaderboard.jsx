@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import Confetti from '../UI/Confetti';
 import { SIMULATED_USERS } from '../../data/simulatedUsers';
+import { decodeEntities } from '../../utils/security';
 import './Leaderboard.css';
 
 /**
@@ -119,7 +120,7 @@ export default function Leaderboard({
   /** Combine and sort user standings. */
   const leaderboardData = useMemo(() => {
     const userRow = {
-      name: (userName ? userName.trim() : '') || 'You',
+      name: (userName ? decodeEntities(userName.trim()) : '') || 'You',
       emoji: '🏝️',
       weeklyCO2: userWeeklyCO2,
       habitatHealth: habitatState.healthScore || 50,

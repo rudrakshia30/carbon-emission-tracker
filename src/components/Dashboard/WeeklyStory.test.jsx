@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import WeeklyStory from './WeeklyStory';
 
@@ -36,12 +36,7 @@ const mockHabitatState = {
 };
 
 describe('WeeklyStory Component', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-
   afterEach(() => {
-    vi.useRealTimers();
     vi.clearAllMocks();
   });
 
@@ -134,9 +129,6 @@ describe('WeeklyStory Component', () => {
   });
 
   it('should fall back to template story when no API key and generation completes', async () => {
-    // Switch to real timers for this async fallback test to avoid fake-timer/waitFor deadlock
-    vi.useRealTimers();
-
     const { getApiKey } = await import('../../utils/security');
     getApiKey.mockReturnValue(null);
 
@@ -153,4 +145,131 @@ describe('WeeklyStory Component', () => {
       { timeout: 4000 }
     );
   }, 8000);
+
+  it('should call storeApiKey when typing in the API key input field', async () => {
+    const { storeApiKey } = await import('../../utils/security');
+    render(<WeeklyStory weeklyData={mockWeeklyData} habitatState={mockHabitatState} />);
+
+    const toggle = screen.getByRole('button', { name: /open gemini api key settings/i });
+    fireEvent.click(toggle);
+
+    const input = screen.getByLabelText(/enter gemini api key/i);
+    fireEvent.change(input, { target: { value: 'AIzaSyTestKey' } });
+
+    expect(storeApiKey).toHaveBeenCalledWith('AIzaSyTestKey');
+  });
+
+  it('should generate AI story successfully when API key is present', async () => {
+    const { getApiKey } = await import('../../utils/security');
+    getApiKey.mockReturnValue('valid-api-key');
+
+    const mockResponse = {
+      ok: true,
+      json: async () => ({
+        candidates: [{ content: { parts: [{ text: "The virtual island is blooming and clean!" }] } }]
+      })
+    };
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = vi.fn().mockResolvedValue(mockResponse);
+
+    render(<WeeklyStory weeklyData={mockWeeklyData} habitatState={mockHabitatState} />);
+    const generateBtn = screen.getByRole('button', { name: /generate weekly story/i });
+    fireEvent.click(generateBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText("The virtual island is blooming and clean!")).toBeInTheDocument();
+    });
+
+    globalThis.fetch = originalFetch;
+  });
+
+  it('should handle API failure gracefully by falling back to template story', async () => {
+    const { getApiKey } = await import('../../utils/security');
+    getApiKey.mockReturnValue('valid-api-key');
+
+    const mockResponse = {
+      ok: false,
+      status: 400,
+      statusText: 'Bad Request'
+    };
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = vi.fn().mockResolvedValue(mockResponse);
+
+    render(<WeeklyStory weeklyData={mockWeeklyData} habitatState={mockHabitatState} />);
+    const generateBtn = screen.getByRole('button', { name: /generate weekly story/i });
+    fireEvent.click(generateBtn);
+
+    await waitFor(() => {
+      // Should display the template story instead of failing
+      expect(screen.getByText(/flourished beautifully/i)).toBeInTheDocument();
+    });
+
+    globalThis.fetch = originalFetch;
+  });
+
+  it('should handle API fetch timeout gracefully by falling back to template story', async () => {
+    const { getApiKey } = await import('../../utils/security');
+    getApiKey.mockReturnValue('valid-api-key');
+
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = vi.fn().mockRejectedValue({ name: 'AbortError' });
+
+    render(<WeeklyStory weeklyData={mockWeeklyData} habitatState={mockHabitatState} />);
+    const generateBtn = screen.getByRole('button', { name: /generate weekly story/i });
+    fireEvent.click(generateBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText(/flourished beautifully/i)).toBeInTheDocument();
+    });
+
+    globalThis.fetch = originalFetch;
+  });
+
+  it('should enforce rate limiting cooldown when clicked twice within RATE_LIMIT_MS', async () => {
+    const { getApiKey } = await import('../../utils/security');
+    getApiKey.mockReturnValue('valid-api-key');
+
+    const mockResponse = {
+      ok: true,
+      json: async () => ({
+        candidates: [{ content: { parts: [{ text: "Story 1" }] } }]
+      })
+    };
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = vi.fn().mockResolvedValue(mockResponse);
+
+    render(<WeeklyStory weeklyData={mockWeeklyData} habitatState={mockHabitatState} />);
+    const generateBtn = screen.getByRole('button', { name: /generate weekly story/i });
+
+    // First click
+    fireEvent.click(generateBtn);
+    await waitFor(() => {
+      expect(screen.getByText("Story 1")).toBeInTheDocument();
+    });
+
+    // Second click should not trigger fetch, and button text should show cooldown
+    fireEvent.click(generateBtn);
+    expect(screen.getByText(/Wait/i)).toBeInTheDocument();
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1); // Only called once
+
+    globalThis.fetch = originalFetch;
+  });
+
+  it('should handle generic API fetch errors gracefully by falling back to template story', async () => {
+    const { getApiKey } = await import('../../utils/security');
+    getApiKey.mockReturnValue('valid-api-key');
+
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error("Generic network error"));
+
+    render(<WeeklyStory weeklyData={mockWeeklyData} habitatState={mockHabitatState} />);
+    const generateBtn = screen.getByRole('button', { name: /generate weekly story/i });
+    fireEvent.click(generateBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText(/flourished beautifully/i)).toBeInTheDocument();
+    });
+
+    globalThis.fetch = originalFetch;
+  });
 });

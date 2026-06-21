@@ -74,7 +74,7 @@ export default function Dashboard({ logs = [], streaks = { current: 0, best: 0 }
         <div className="dash-score-ring">
           <svg viewBox="0 0 120 120" aria-hidden="true">
             <defs>
-              <linearGradient id="score-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <linearGradient id="dash-score-ring-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor={scoreColor} />
                 <stop offset="100%" stopColor={scoreColor} stopOpacity="0.6" />
               </linearGradient>
@@ -83,7 +83,7 @@ export default function Dashboard({ logs = [], streaks = { current: 0, best: 0 }
             <circle
               className="dash-ring-fill"
               cx="60" cy="60" r="54"
-              stroke="url(#score-gradient)"
+              stroke="url(#dash-score-ring-gradient)"
               strokeDasharray={circumference}
               strokeDashoffset={dashOffset}
             />

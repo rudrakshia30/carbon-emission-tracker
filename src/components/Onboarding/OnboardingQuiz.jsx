@@ -109,7 +109,7 @@ export default function OnboardingQuiz({ onComplete }) {
   const handleFinish = () => {
     const baseline = scoreRef.current;
     onComplete({
-      name: name.trim() || 'Explorer',
+      name: sanitizeString(name.trim() || 'Explorer', MAX_NAME_LENGTH),
       region,
       transport: { mode: transportMode, dailyDistanceKm: dailyKm },
       diet: diet || 'omnivore',
@@ -202,7 +202,7 @@ export default function OnboardingQuiz({ onComplete }) {
                 type="text"
                 placeholder=" "
                 value={name}
-                onChange={(e) => setName(sanitizeString(e.target.value, MAX_NAME_LENGTH))}
+                onChange={(e) => setName(e.target.value.slice(0, MAX_NAME_LENGTH))}
                 maxLength={MAX_NAME_LENGTH}
                 autoComplete="off"
                 aria-label="Your name"

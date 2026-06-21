@@ -26,9 +26,34 @@ export const MAX_LOG_ENTRIES = 500;
 export function sanitizeString(str, maxLength = 200) {
   if (typeof str !== 'string') return '';
   return str
-    .replace(/[<>'"&]/g, (c) => ({ '<': '', '>': '', "'": '', '"': '', '&': '' }[c]))
+    .replace(/[&<>'"]/g, (c) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      "'": '&#x27;',
+      '"': '&quot;',
+    }[c]))
     .trim()
     .slice(0, maxLength);
+}
+
+/**
+ * Decode common HTML entities back to their original characters for display.
+ * @param {string} str
+ * @returns {string}
+ */
+export function decodeEntities(str) {
+  if (typeof str !== 'string') return '';
+  return str.replace(/&(amp|lt|gt|quot|#x27);/g, (match, entity) => {
+    const map = {
+      amp: '&',
+      lt: '<',
+      gt: '>',
+      quot: '"',
+      '#x27': "'",
+    };
+    return map[entity] || match;
+  });
 }
 
 /**

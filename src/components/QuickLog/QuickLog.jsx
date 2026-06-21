@@ -131,7 +131,8 @@ export default function QuickLog({ onLog, emissionFactors, baselineScore = 22, e
         const mealsObj = {};
         if (existingLog.meals && Array.isArray(existingLog.meals)) {
           existingLog.meals.forEach(m => {
-            mealsObj[m.meal] = m.type;
+            const foundFood = FOOD_TYPES.find(f => f.factorKey === m.type);
+            mealsObj[m.meal] = foundFood ? foundFood.id : m.type;
           });
         }
         setMeals(mealsObj);
@@ -275,10 +276,13 @@ export default function QuickLog({ onLog, emissionFactors, baselineScore = 22, e
 
   /* ── submit ────────────────────────────────────────── */
   const handleSubmit = () => {
-    const mealEntries = Object.entries(meals).map(([slot, foodId]) => ({
-      type: foodId,
-      meal: slot
-    }));
+    const mealEntries = Object.entries(meals).map(([slot, foodId]) => {
+      const food = FOOD_TYPES.find(f => f.id === foodId);
+      return {
+        type: food ? food.factorKey : foodId,
+        meal: slot
+      };
+    });
 
     const transportEntries = Object.entries(transportLogs).map(([modeId, dist]) => ({
       mode: modeId,

@@ -249,6 +249,7 @@ Water Clarity: ${habitatState.waterClarity} (0 is murky, 1 is crystal clear)
       >
         {isGenerating ? (
           <div className="weekly-story__skeleton" aria-label="Generating story, please wait">
+            <span className="sr-only">Generating weekly story, please wait...</span>
             <div className="weekly-story__skeleton-line" style={{ width: '95%' }} />
             <div className="weekly-story__skeleton-line" style={{ width: '80%' }} />
             <div className="weekly-story__skeleton-line" style={{ width: '88%' }} />

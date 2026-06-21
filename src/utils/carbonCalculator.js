@@ -5,8 +5,21 @@
  */
 
 import { EMISSION_FACTORS, NATIONAL_AVG_DAILY_CO2 } from '../data/emissionFactors';
+import { REGION_TARGETS } from '../data/regionTargets';
 
 export const DEMO_BASELINE_SCORE = 22.5;
+
+/**
+ * Maps grid intensity for a region to a carbon intensity multiplier.
+ * @param {string} regionId
+ * @returns {number}
+ */
+export function getGridMultiplier(regionId) {
+  const intensity = REGION_TARGETS[regionId]?.gridIntensity || 'medium';
+  if (intensity === 'low') return 0.5;
+  if (intensity === 'high') return 1.5;
+  return 1.0;
+}
 
 /**
  * Calculate CO2 from a single transport entry
@@ -36,9 +49,10 @@ export function calculateFoodCO2(meals) {
 /**
  * Calculate CO2 from energy usage
  * @param {Object} energy - Energy usage data
+ * @param {number} [multiplier=1.0] - grid intensity multiplier
  * @returns {number} kg CO2e
  */
-export function calculateEnergyCO2(energy) {
+export function calculateEnergyCO2(energy, multiplier = 1.0) {
   if (!energy) return 0;
   let total = 0;
   if (energy.ac) total += energy.ac * EMISSION_FACTORS.energy.ac_per_hour;
@@ -46,7 +60,7 @@ export function calculateEnergyCO2(energy) {
   if (energy.shower) total += 8 * EMISSION_FACTORS.energy.hot_shower_per_minute; // assume 8 min long shower
   if (energy.laundry) total += EMISSION_FACTORS.energy.laundry_per_load;
   if (energy.dishwasher) total += EMISSION_FACTORS.energy.dishwasher_per_cycle;
-  return Math.round(total * 100) / 100;
+  return Math.round(total * multiplier * 100) / 100;
 }
 
 /**
@@ -66,34 +80,42 @@ export function calculateShoppingCO2(shopping) {
 }
 
 /**
+ * Maps common UI transport modes to internal emission factor keys.
+ * @param {string} modeKey
+ * @returns {string}
+ */
+function normalizeTransportMode(modeKey) {
+  const mapping = {
+    walk: 'walking',
+    bike: 'bicycle',
+    train: 'train_metro',
+    car: 'car_gasoline',
+  };
+  return mapping[modeKey] || modeKey;
+}
+
+/**
  * Calculate total CO2 for a daily log entry
  * @param {Object} logEntry - Complete log entry
+ * @param {string} [region='global'] - User's selected region
  * @returns {Object} Breakdown by category and total
  */
-export function calculateDailyTotal(logEntry) {
+export function calculateDailyTotal(logEntry, region = 'global') {
   let transport = 0;
   if (logEntry.transport) {
     if (Array.isArray(logEntry.transport)) {
       transport = logEntry.transport.reduce((sum, t) => {
-        let modeKey = t.mode;
-        // Map common UI names to internal factor keys if needed
-        if (modeKey === 'walk') modeKey = 'walking';
-        if (modeKey === 'bike') modeKey = 'bicycle';
-        if (modeKey === 'train') modeKey = 'train_metro';
-        if (modeKey === 'car') modeKey = 'car_gasoline';
+        const modeKey = normalizeTransportMode(t.mode);
         return sum + calculateTransportCO2(modeKey, t.distanceKm);
       }, 0);
     } else {
-      let modeKey = logEntry.transport.mode;
-      if (modeKey === 'walk') modeKey = 'walking';
-      if (modeKey === 'bike') modeKey = 'bicycle';
-      if (modeKey === 'train') modeKey = 'train_metro';
-      if (modeKey === 'car') modeKey = 'car_gasoline';
+      const modeKey = normalizeTransportMode(logEntry.transport.mode);
       transport = calculateTransportCO2(modeKey, logEntry.transport.distanceKm);
     }
   }
   const food = calculateFoodCO2(logEntry.meals);
-  const energy = calculateEnergyCO2(logEntry.energy);
+  const gridMultiplier = getGridMultiplier(region);
+  const energy = calculateEnergyCO2(logEntry.energy, gridMultiplier);
   const shopping = calculateShoppingCO2(logEntry.shopping);
   const total = Math.round((transport + food + energy + shopping) * 100) / 100;
 

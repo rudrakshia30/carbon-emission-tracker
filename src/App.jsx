@@ -20,6 +20,7 @@ import ErrorBoundary from './components/UI/ErrorBoundary';
 import { EMISSION_FACTORS } from './data/emissionFactors';
 import { getWeeklyTotals, getLocalDateString } from './utils/carbonCalculator';
 import { generateMicroAction } from './utils/microActionGenerator';
+import { decodeEntities } from './utils/security';
 import './App.css';
 
 function App() {
@@ -194,7 +195,7 @@ function App() {
             />
 
             <p className="app__habitat-name">
-              <strong>{state.user.name}'s</strong> island · {state.habitat.trees} trees · {state.habitat.flowers} flowers · Air: {state.habitat.smogLevel > 0.7 ? '🌫️ Smoggy' : state.habitat.smogLevel > 0.3 ? '🌤️ Hazy' : '☀️ Clear'} · Water: {state.habitat.waterClarity > 0.7 ? '💧 Crystal' : state.habitat.waterClarity > 0.3 ? '🌊 Cloudy' : '🟫 Murky'}
+              <strong>{decodeEntities(state.user.name)}'s</strong> island · {state.habitat.trees} trees · {state.habitat.flowers} flowers · Air: {state.habitat.smogLevel > 0.7 ? '🌫️ Smoggy' : state.habitat.smogLevel > 0.3 ? '🌤️ Hazy' : '☀️ Clear'} · Water: {state.habitat.waterClarity > 0.7 ? '💧 Crystal' : state.habitat.waterClarity > 0.3 ? '🌊 Cloudy' : '🟫 Murky'}
             </p>
 
             {/* Simulation Controls Panel */}

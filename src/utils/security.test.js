@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import {
   sanitizeString,
+  decodeEntities,
   clampNumber,
   validatePersistedState,
   storeApiKey,
@@ -12,16 +13,16 @@ import {
 describe('Security Utilities', () => {
   // ── sanitizeString ────────────────────────────────────────────────────────
   describe('sanitizeString', () => {
-    it('removes HTML tags from input', () => {
-      expect(sanitizeString('<script>alert(1)</script>')).toBe('scriptalert(1)/script');
+    it('escapes HTML tags and special characters in input', () => {
+      expect(sanitizeString('<script>alert(1)</script>')).toBe('&lt;script&gt;alert(1)&lt;/script&gt;');
     });
 
-    it('strips < and > characters', () => {
-      expect(sanitizeString('Hello <World>')).toBe('Hello World');
+    it('escapes < and > characters', () => {
+      expect(sanitizeString('Hello <World>')).toBe('Hello &lt;World&gt;');
     });
 
-    it('strips single and double quotes', () => {
-      expect(sanitizeString(`say "hi" or 'bye'`)).toBe('say hi or bye');
+    it('escapes single and double quotes and ampersands', () => {
+      expect(sanitizeString(`say "hi" & 'bye'`)).toBe('say &quot;hi&quot; &amp; &#x27;bye&#x27;');
     });
 
     it('truncates to maxLength', () => {
@@ -41,6 +42,20 @@ describe('Security Utilities', () => {
 
     it('trims whitespace', () => {
       expect(sanitizeString('  hello  ')).toBe('hello');
+    });
+  });
+
+  // ── decodeEntities ────────────────────────────────────────────────────────
+  describe('decodeEntities', () => {
+    it('decodes HTML entities back to characters', () => {
+      expect(decodeEntities('&lt;script&gt;')).toBe('<script>');
+      expect(decodeEntities('Hello &lt;World&gt;')).toBe('Hello <World>');
+      expect(decodeEntities('say &quot;hi&quot; &amp; &#x27;bye&#x27;')).toBe(`say "hi" & 'bye'`);
+    });
+
+    it('returns empty string for non-string input', () => {
+      expect(decodeEntities(null)).toBe('');
+      expect(decodeEntities(undefined)).toBe('');
     });
   });
 

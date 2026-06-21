@@ -11,6 +11,7 @@ import {
   calculateBaselineScore,
   getWeeklyTotals,
   getWeeklyAverage,
+  getGridMultiplier,
 } from './carbonCalculator';
 
 describe('Carbon Calculator Utilities', () => {
@@ -92,6 +93,50 @@ describe('Carbon Calculator Utilities', () => {
       expect(breakdown.energy).toBe(2.0);
       expect(breakdown.shopping).toBe(10.0);
       expect(breakdown.total).toBe(19.0);
+    });
+  });
+
+  describe('getGridMultiplier', () => {
+    it('should return 1.5 for high intensity regions', () => {
+      expect(getGridMultiplier('india')).toBe(1.5);
+      expect(getGridMultiplier('china')).toBe(1.5);
+      expect(getGridMultiplier('australia')).toBe(1.5);
+    });
+
+    it('should return 1.0 for medium intensity regions', () => {
+      expect(getGridMultiplier('usa')).toBe(1.0);
+      expect(getGridMultiplier('europe')).toBe(1.0);
+      expect(getGridMultiplier('global')).toBe(1.0);
+      expect(getGridMultiplier('unknown_region')).toBe(1.0);
+    });
+
+    it('should return 0.5 for low intensity regions', () => {
+      expect(getGridMultiplier('uk')).toBe(0.5);
+      expect(getGridMultiplier('brazil')).toBe(0.5);
+    });
+  });
+
+  describe('calculateEnergyCO2 with multiplier', () => {
+    it('should scale energy emissions using the grid multiplier', () => {
+      const energy = { ac: 2 }; // 2.0 kg default
+      expect(calculateEnergyCO2(energy, 0.5)).toBe(1.0);
+      expect(calculateEnergyCO2(energy, 1.5)).toBe(3.0);
+    });
+  });
+
+  describe('calculateDailyTotal with region', () => {
+    it('should apply the regional grid intensity multiplier to the energy component of the daily total', () => {
+      const log = {
+        energy: { ac: 2 }, // 2.0 kg default
+      };
+      // India has high grid intensity (1.5x) -> 3.0 kg
+      expect(calculateDailyTotal(log, 'india').energy).toBe(3.0);
+      // Brazil has low grid intensity (0.5x) -> 1.0 kg
+      expect(calculateDailyTotal(log, 'brazil').energy).toBe(1.0);
+      // USA has medium grid intensity (1.0x) -> 2.0 kg
+      expect(calculateDailyTotal(log, 'usa').energy).toBe(2.0);
+      // Fallback/global has medium grid intensity (1.0x) -> 2.0 kg
+      expect(calculateDailyTotal(log).energy).toBe(2.0);
     });
   });
 
