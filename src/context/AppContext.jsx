@@ -178,7 +178,7 @@ function appReducer(state, action) {
       };
 
     case ACTIONS.LOAD_STATE:
-      return { ...initialState, ...action.payload };
+      return { ...initialState, ...action.payload, activeTab: 'habitat' };
 
     case ACTIONS.RESET:
       return { ...initialState };
@@ -211,7 +211,7 @@ function loadPersistedState() {
  */
 function persistState(state) {
   try {
-    const toSave = { ...state, toasts: [] }; // Don't persist toasts
+    const toSave = { ...state, toasts: [], activeTab: 'habitat' }; // Don't persist toasts, reset activeTab to habitat
     localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
   } catch {
     // localStorage might be full or unavailable
