@@ -34,9 +34,9 @@ describe('Dashboard Component', () => {
 
     // '10' appears in the ring AND in the chart — ensure at least one match exists
     expect(screen.getAllByText('10').length).toBeGreaterThanOrEqual(1);
-    // Status icon aria-label contains "Excellent"
-    expect(screen.getByLabelText(/Status: Excellent/i)).toBeInTheDocument();
-    expect(screen.getByText(/44% of your 22\.5kg target/i)).toBeInTheDocument();
+    // Status icon — 10kg vs global target 11kg = 90% → High Emissions
+    expect(screen.getByLabelText(/Status: High Emissions/i)).toBeInTheDocument();
+    expect(screen.getByText(/Global Average's 11kg target/i)).toBeInTheDocument();
   });
 
   it('renders "High Emissions" status when CO2 exceeds 80% of baseline', () => {
@@ -103,7 +103,25 @@ describe('Dashboard Component', () => {
       />
     );
 
-    // The baseline (22.5 kg) should appear in the score percentage label
-    expect(screen.getByText(/22\.5kg target/i)).toBeInTheDocument();
+    // With default region='global' (11kg target), 11kg = 100% → label shows region info
+    expect(screen.getByText(/Global Average's 11kg target/i)).toBeInTheDocument();
+  });
+
+  it('uses region-specific target when region prop is passed', () => {
+    const today = getLocalDateString();
+    const logs = [{ date: today + 'T10:00:00.000Z', totalCO2: 3 }];
+
+    render(
+      <Dashboard
+        logs={logs}
+        baselineScore={DEMO_BASELINE_SCORE}
+        streaks={{ current: 0, best: 0 }}
+        userName="Demo"
+        region="india"
+      />
+    );
+
+    // India target is 5.6 kg/day
+    expect(screen.getByText(/India's 5\.6kg target/i)).toBeInTheDocument();
   });
 });

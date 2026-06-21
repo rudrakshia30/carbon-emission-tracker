@@ -7,6 +7,7 @@ import { useRef, useMemo, useState } from 'react';
 import { useApp } from './context/AppContext';
 import OnboardingQuiz from './components/Onboarding/OnboardingQuiz';
 import HabitatCanvas from './components/Habitat/HabitatCanvas';
+import HabitatSimPanel from './components/Habitat/HabitatSimPanel';
 import QuickLog from './components/QuickLog/QuickLog';
 
 import Dashboard from './components/Dashboard/Dashboard';
@@ -17,7 +18,7 @@ import BottomNav from './components/UI/BottomNav';
 import Toast from './components/UI/Toast';
 import ErrorBoundary from './components/UI/ErrorBoundary';
 import { EMISSION_FACTORS } from './data/emissionFactors';
-import { getWeeklyAverage, getWeeklyTotals, getLocalDateString } from './utils/carbonCalculator';
+import { getWeeklyTotals, getLocalDateString } from './utils/carbonCalculator';
 import { generateMicroAction } from './utils/microActionGenerator';
 import './App.css';
 
@@ -53,9 +54,6 @@ function App() {
     [state.logs, state.habitat]
   );
 
-  // Weekly CO2 for leaderboard — use actual 7-day sum, not projected avg×7
-  // Using avg×7 caused rank to be frozen (e.g. 1 day at 9kg → 9×7=63 → always rank 4)
-  const weeklyAvg = useMemo(() => getWeeklyAverage(state.logs), [state.logs]);
   const weeklyDayTotals = useMemo(() => getWeeklyTotals(state.logs), [state.logs]);
   const userWeeklyCO2 = useMemo(() => {
     const actual = Math.round(
@@ -200,84 +198,16 @@ function App() {
             </p>
 
             {/* Simulation Controls Panel */}
-            <div className="simulation-panel">
-              <h3 className="simulation-panel__title">🛠️ Habitat Simulator</h3>
-              <div className="simulation-panel__grid">
-                
-                {/* Time of Day Control */}
-                <div className="sim-control">
-                  <div className="sim-control__header">
-                    <label htmlFor="sim-time-slider" className="sim-control__label">
-                      🌅 Time of Day: <strong>{isRealTime ? 'Auto (Real-time)' : `${Math.floor(manualTime)}:00`}</strong>
-                    </label>
-                    <button
-                      className={`sim-control__toggle-btn ${isRealTime ? '' : 'sim-control__toggle-btn--active'}`}
-                      onClick={() => setIsRealTime(!isRealTime)}
-                      aria-label={isRealTime ? 'Unlock time of day control' : 'Lock to real time'}
-                      type="button"
-                    >
-                      {isRealTime ? '🔓 Unlock' : '🔒 Lock to Real'}
-                    </button>
-                  </div>
-                  <input
-                    id="sim-time-slider"
-                    type="range"
-                    min="0"
-                    max="23.9"
-                    step="0.1"
-                    disabled={isRealTime}
-                    value={isRealTime ? new Date().getHours() : manualTime}
-                    onChange={(e) => setManualTime(parseFloat(e.target.value))}
-                    className="sim-control__slider"
-                    aria-label={`Time of day: ${isRealTime ? 'Auto real-time' : `${Math.floor(manualTime)}:00`}`}
-                    aria-valuemin={0}
-                    aria-valuemax={23}
-                    aria-valuenow={isRealTime ? new Date().getHours() : Math.floor(manualTime)}
-                  />
-                </div>
-
-                {/* Wind Speed Control */}
-                <div className="sim-control">
-                  <div className="sim-control__header">
-                    <label htmlFor="sim-wind-slider" className="sim-control__label">
-                      💨 Wind Speed: <strong>{windSpeed}x</strong>
-                    </label>
-                  </div>
-                  <input
-                    id="sim-wind-slider"
-                    type="range"
-                    min="0"
-                    max="10"
-                    step="1"
-                    value={windSpeed}
-                    onChange={(e) => setWindSpeed(parseInt(e.target.value))}
-                    className="sim-control__slider"
-                    aria-label={`Wind speed: ${windSpeed} out of 10`}
-                    aria-valuemin={0}
-                    aria-valuemax={10}
-                    aria-valuenow={windSpeed}
-                  />
-                </div>
-
-                {/* Eco-Home Toggle */}
-                <div className="sim-control sim-control--full-width">
-                  <div className="sim-control__checkbox-wrapper">
-                    <label htmlFor="sim-toggle-home" className="sim-control__label">
-                      🏡 Render Digital Twin Eco-Home
-                    </label>
-                    <button
-                      id="sim-toggle-home"
-                      className={`sim-toggle ${showEcoHome ? 'sim-toggle--on' : ''}`}
-                      onClick={() => setShowEcoHome(!showEcoHome)}
-                      role="switch"
-                      aria-checked={showEcoHome}
-                    >
-                      <span className="sim-toggle__knob" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <HabitatSimPanel
+              isRealTime={isRealTime}
+              manualTime={manualTime}
+              windSpeed={windSpeed}
+              showEcoHome={showEcoHome}
+              onRealTimeToggle={() => setIsRealTime(!isRealTime)}
+              onManualTimeChange={setManualTime}
+              onWindSpeedChange={setWindSpeed}
+              onEcoHomeToggle={() => setShowEcoHome(!showEcoHome)}
+            />
 
             </div>
             <div className="app__habitat-sidebar">
@@ -329,6 +259,7 @@ function App() {
               baselineScore={state.user.baselineScore}
               habitatState={state.habitat}
               userName={state.user.name}
+              region={state.user.region || 'global'}
             />
           </ErrorBoundary>
         </div>

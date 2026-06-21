@@ -1,28 +1,16 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
+import { EMISSION_FACTORS as SHARED_FACTORS } from '../../data/emissionFactors';
 import './QuickLog.css';
 
 /**
- * Default emission factors used when none are provided via props.
- * Values are in kg CO2 per unit (km, meal, hour, item, etc.)
+ * Remap shared emission factors to the key structure QuickLog expects.
+ * Single source of truth — no duplicated data.
  */
 const DEFAULT_EMISSION_FACTORS = {
-  transportation: {
-    car_gasoline: 0.192, car_diesel: 0.171, car_electric: 0.053,
-    bus: 0.089, train_metro: 0.041, bicycle: 0.0, walking: 0.0,
-    motorcycle: 0.113, ride_share: 0.096, airplane: 0.180
-  },
-  food: {
-    beef_meal: 7.2, chicken_meal: 1.8, pork_meal: 2.4, fish_meal: 1.8,
-    vegetarian_meal: 0.7, vegan_meal: 0.4, dairy_heavy_meal: 2.8
-  },
-  energy: {
-    ac_per_hour: 1.0, heating_per_hour: 1.5, laundry_per_load: 0.6,
-    dishwasher_per_cycle: 0.7, hot_shower_per_minute: 0.1
-  },
-  shopping: {
-    new_clothing_item: 10.0, electronics_smartphone: 70.0,
-    groceries_local: 2.0, groceries_imported: 5.0, online_order_with_shipping: 1.5
-  }
+  transportation: SHARED_FACTORS.transportation,
+  food: SHARED_FACTORS.food,
+  energy: SHARED_FACTORS.energy,
+  shopping: SHARED_FACTORS.shopping,
 };
 
 /** Transport mode definitions */
@@ -221,7 +209,10 @@ export default function QuickLog({ onLog, emissionFactors, baselineScore = 22, e
     }, 0);
   }, [shoppingCounts, factors]);
 
-  const totalCO2 = transportCO2 + foodCO2 + energyCO2 + shoppingCO2;
+  const totalCO2 = useMemo(
+    () => transportCO2 + foodCO2 + energyCO2 + shoppingCO2,
+    [transportCO2, foodCO2, energyCO2, shoppingCO2]
+  );
   const delta = totalCO2 - baselineScore;
   const isWorse = delta > 0;
   const isBetter = delta < 0;
@@ -340,10 +331,10 @@ export default function QuickLog({ onLog, emissionFactors, baselineScore = 22, e
 
       {Object.keys(transportLogs).length > 0 && (
         <div className="ql-distance-section">
-          <h4 className="ql-distance-section__title" style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-secondary, #9ca3af)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <h4 className="ql-distance-section__title">
             Set travel distances:
           </h4>
-          <div className="ql-distance-rows-container" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div className="ql-distance-rows-container">
             {Object.entries(transportLogs).map(([modeId, dist]) => {
               const mode = TRANSPORT_MODES.find(m => m.id === modeId);
               if (!mode) return null;

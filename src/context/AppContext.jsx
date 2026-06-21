@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 /**
  * AppContext — Global State Management for CarbonTwin
  * 
@@ -64,10 +65,8 @@ const initialState = {
   unlockedBadges: [],
 };
 
-/**
- * Action types
- */
-const ACTIONS = {
+/** Action type constants — exported for testing */
+export const ACTIONS = {
   COMPLETE_ONBOARDING: 'COMPLETE_ONBOARDING',
   ADD_LOG: 'ADD_LOG',
   UPDATE_HABITAT: 'UPDATE_HABITAT',
@@ -131,7 +130,7 @@ function appReducer(state, action) {
         newLogs = [...state.logs, logEntry];
       }
       const streaks = calculateStreak(newLogs);
-      const habitat = calculateHabitatState(newLogs, streaks.current);
+      const habitat = calculateHabitatState(newLogs, streaks.current, state.user.region || 'global');
 
       return {
         ...state,
@@ -188,6 +187,9 @@ function appReducer(state, action) {
       return state;
   }
 }
+
+/** Export reducer and initial state for unit testing */
+export { appReducer, initialState };
 
 /**
  * Load state from localStorage
@@ -294,7 +296,6 @@ export function AppProvider({ children }) {
 /**
  * Custom hook to use the app context
  */
-// eslint-disable-next-line react-refresh/only-export-components
 export function useApp() {
   const context = useContext(AppContext);
   if (!context) {

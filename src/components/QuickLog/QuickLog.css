@@ -190,6 +190,21 @@
   margin-top: 8px;
 }
 
+.ql-distance-section__title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary, #9ca3af);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ql-distance-rows-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
 .ql-distance-label {
   font-size: 14px;
   color: var(--text-secondary, #9ca3af);

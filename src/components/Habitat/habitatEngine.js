@@ -10,8 +10,9 @@
  */
 
 import { getLocalDateString } from '../../utils/carbonCalculator';
+import { getRegionTarget } from '../../data/regionTargets';
 
-/** National average daily CO₂ emissions in kg (India context) */
+/** Fallback national average daily CO₂ emissions in kg (global context) */
 const NATIONAL_AVG_DAILY_CO2 = 22;
 
 /** Categories considered high-emission transport */
@@ -134,21 +135,25 @@ function calculateSmogLevel(logs) {
  * Takes user's carbon log data and streak count, returns a habitatState
  * object that drives every visual element on the HabitatCanvas.
  *
- * @param {Array<Object>} logs - Array of carbon log entries. Each entry should have
- *   at minimum `{ date: string, co2: number }` and optionally `category`, `tags`, etc.
+ * @param {Array<Object>} logs - Array of carbon log entries
  * @param {number} streakCount - Number of consecutive days the user has logged
+ * @param {string} [region='global'] - User's selected region ID for region-aware health scoring
  * @returns {Object} habitatState — the full visual state for HabitatCanvas
  *
  * @example
- * const state = calculateHabitatState(userLogs, 10);
+ * const state = calculateHabitatState(userLogs, 10, 'india');
  * // => { healthScore: 78, trees: 11, flowers: 5, birds: 3, ... }
  */
-export function calculateHabitatState(logs = [], streakCount = 0) {
+export function calculateHabitatState(logs = [], streakCount = 0, region = 'global') {
   const avgCO2 = getRecentAvgCO2(logs);
 
+  // Use region-specific daily target for health score calculation
+  // This ensures Indian users aren't penalised against a 22kg global baseline
+  const regionalTarget = getRegionTarget(region) || NATIONAL_AVG_DAILY_CO2;
+
   // Health score: 100 means pristine (zero emissions), 0 means heavy polluter
-  // Formula: 100 - (avgDailyCO2 / nationalAvg * 50), clamped 0-100
-  const rawHealth = 100 - (avgCO2 / NATIONAL_AVG_DAILY_CO2) * 50;
+  // Formula: 100 - (avgDailyCO2 / regionalTarget * 50), clamped 0-100
+  const rawHealth = 100 - (avgCO2 / regionalTarget) * 50;
   const healthScore = Math.max(0, Math.min(100, Math.round(rawHealth)));
 
   // Trees: 0-14 based on health score

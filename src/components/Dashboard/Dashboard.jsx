@@ -6,6 +6,7 @@
 import { useMemo } from 'react';
 import { getWeeklyTotals, getWeeklyAverage, getCategoryPercentages, getLocalDateString } from '../../utils/carbonCalculator';
 import { generateInsights } from '../../utils/insightGenerator';
+import { getRegionTarget, REGION_TARGETS } from '../../data/regionTargets';
 import WeeklyStory from './WeeklyStory';
 import './Dashboard.css';
 
@@ -22,16 +23,21 @@ const CATEGORY_COLORS = {
  * @param {Object} props.streaks - { current, best }
  * @param {number} props.baselineScore - User's baseline daily CO2
  * @param {Object} props.habitatState - Current habitat state
+ * @param {string} props.region - User's selected region ID
  */
-export default function Dashboard({ logs = [], streaks = { current: 0, best: 0 }, baselineScore = 22, habitatState = {}, userName = 'Eco Friend' }) {
+export default function Dashboard({ logs = [], streaks = { current: 0, best: 0 }, baselineScore = 22, habitatState = {}, userName = 'Eco Friend', region = 'global' }) {
+  // Region-specific daily target (national climate goal)
+  const regionInfo = REGION_TARGETS[region] ?? REGION_TARGETS.global;
+  const regionDailyTarget = getRegionTarget(region);
+
   // Today's total
   const todayStr = getLocalDateString();
   const todayLogs = logs.filter((l) => l.date && getLocalDateString(l.date) === todayStr);
   const todayTotal = todayLogs.reduce((s, l) => s + (l.totalCO2 || 0), 0);
   const todayRounded = Math.round(todayTotal * 10) / 10;
 
-  // Score ring percentage (vs baseline target)
-  const scorePercent = Math.min(100, Math.round((todayTotal / baselineScore) * 100));
+  // Score ring percentage vs region target (not personal baseline)
+  const scorePercent = Math.min(100, Math.round((todayTotal / regionDailyTarget) * 100));
   const scoreColor = scorePercent < 50 ? '#10b981' : scorePercent < 80 ? '#f59e0b' : '#ef4444';
   const scoreIcon = scorePercent < 50 ? '🌟' : scorePercent < 80 ? '⚠️' : '🚨';
   const scoreStatusText = scorePercent < 50 ? 'Excellent' : scorePercent < 80 ? 'Fair' : 'High Emissions';
@@ -93,7 +99,7 @@ export default function Dashboard({ logs = [], streaks = { current: 0, best: 0 }
         <p className="dash-score-label" aria-live="polite">
           {todayTotal === 0
             ? 'No logs today yet'
-            : `${scorePercent}% of your ${baselineScore}kg target`}
+            : `${scorePercent}% of ${regionInfo.flag} ${regionInfo.label}'s ${regionDailyTarget}kg target`}
         </p>
       </section>
 
