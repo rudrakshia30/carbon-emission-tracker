@@ -102,6 +102,9 @@ function App() {
       type: isGood ? 'success' : 'warning',
       icon: isGood ? '🌸' : '🔥',
     });
+
+    // Auto-navigate to dashboard so the user sees their data immediately
+    setTimeout(() => setActiveTab('dashboard'), 800);
   };
 
   const handleExportImage = () => {

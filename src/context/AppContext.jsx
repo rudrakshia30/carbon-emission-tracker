@@ -96,6 +96,11 @@ function appReducer(state, action) {
       const breakdown = calculateDailyTotal(action.payload, state.user?.region || 'global');
       const todayKey = getLocalDateString();
 
+      // Prefer breakdown.total; fall back to payload's pre-calculated totalCO2 if breakdown is 0
+      const resolvedTotal = breakdown.total > 0
+        ? breakdown.total
+        : (action.payload.totalCO2 || 0);
+
       // Find index of existing log for today
       const existingIndex = state.logs.findIndex(
         (l) => l.date && getLocalDateString(l.date) === todayKey
@@ -109,23 +114,30 @@ function appReducer(state, action) {
           rawTransport: action.payload.transport,
           rawEnergy: action.payload.energy,
           rawShopping: action.payload.shopping,
-          ...breakdown,
-          totalCO2: breakdown.total,
+          transport: breakdown.transport,
+          food: breakdown.food,
+          energy: breakdown.energy,
+          shopping: breakdown.shopping,
+          totalCO2: resolvedTotal,
           id: state.logs[existingIndex].id, // Keep original ID
           date: state.logs[existingIndex].date, // Keep original timestamp
         };
         newLogs = [...state.logs];
         newLogs[existingIndex] = updatedLog;
       } else {
-        // Add new log
+        // Add new log — always store date as local date string to avoid UTC mismatch
         const logEntry = {
           ...action.payload,
           rawTransport: action.payload.transport,
           rawEnergy: action.payload.energy,
           rawShopping: action.payload.shopping,
-          ...breakdown,
-          totalCO2: breakdown.total,
+          transport: breakdown.transport,
+          food: breakdown.food,
+          energy: breakdown.energy,
+          shopping: breakdown.shopping,
+          totalCO2: resolvedTotal,
           id: Date.now().toString(),
+          date: todayKey, // Store as YYYY-MM-DD local date string — avoids UTC offset bugs
         };
         newLogs = [...state.logs, logEntry];
       }

@@ -234,6 +234,12 @@ export function getWeeklyAverage(logs) {
  * @returns {string} YYYY-MM-DD
  */
 export function getLocalDateString(date) {
+  // Plain YYYY-MM-DD strings must NOT be passed through `new Date()` because
+  // the Date constructor treats them as UTC midnight, which shifts the date
+  // backward by one day in UTC-negative timezones. Return as-is.
+  if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return date;
+  }
   const d = date ? new Date(date) : new Date();
   if (isNaN(d.getTime())) return '';
   const year = d.getFullYear();

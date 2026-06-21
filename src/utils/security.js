@@ -74,7 +74,7 @@ export function clampNumber(value, min, max, fallback = 0) {
 
 const ALLOWED_DIET_VALUES = ['omnivore', 'flexitarian', 'vegetarian', 'vegan'];
 const ALLOWED_TRANSPORT_MODES = ['car', 'car_gasoline', 'car_diesel', 'car_electric', 'bus',
-  'train', 'bicycle', 'walking', 'motorcycle', 'ride_share', 'airplane'];
+  'train', 'train_metro', 'bicycle', 'bike', 'walking', 'walk', 'motorcycle', 'ride_share', 'airplane'];
 const ALLOWED_TABS = ['habitat', 'log', 'dashboard', 'leaderboard', 'suggestions'];
 export const ALLOWED_REGIONS = ['india', 'europe', 'usa', 'china', 'uk', 'australia', 'brazil', 'global'];
 
@@ -160,7 +160,11 @@ export function validatePersistedState(raw) {
 
           return {
             id: typeof l.id === 'string' ? sanitizeString(l.id, 50) : Date.now().toString(),
-            date: typeof l.date === 'string' && !isNaN(Date.parse(l.date))
+            // Keep plain YYYY-MM-DD strings as-is (avoid UTC-parsing them which shifts date in negative timezones)
+            // Also accept full ISO timestamps. Anything else falls back to today.
+            date: typeof l.date === 'string' && (
+              /^\d{4}-\d{2}-\d{2}$/.test(l.date) || !isNaN(Date.parse(l.date))
+            )
               ? l.date
               : new Date().toISOString(),
             totalCO2: clampNumber(l.totalCO2, 0, 10000, 0),
