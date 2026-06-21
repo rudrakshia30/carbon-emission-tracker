@@ -102,21 +102,66 @@ const BADGES = [
 
 
 
+const SIMULATED_USERS = [
+  { name: 'GreenLeaf_7', emoji: '🌿', weeklyCO2: 45.2, habitatHealth: 88 },
+  { name: 'EcoNinja_12', emoji: '🥷', weeklyCO2: 52.8, habitatHealth: 84 },
+  { name: 'PlantPower_3', emoji: '🥗', weeklyCO2: 61.1, habitatHealth: 78 },
+  { name: 'SunRider_88', emoji: '☀️', weeklyCO2: 74.5, habitatHealth: 72 },
+  { name: 'WindChaser_4', emoji: '🍃', weeklyCO2: 83.2, habitatHealth: 68 },
+  { name: 'EcoWarrior_42', emoji: '🛡️', weeklyCO2: 95.0, habitatHealth: 65 },
+  { name: 'ForestFriend_9', emoji: '🦊', weeklyCO2: 108.4, habitatHealth: 61 },
+  { name: 'CleanAir_22', emoji: '💨', weeklyCO2: 115.6, habitatHealth: 58 },
+  { name: 'SeaSaver_15', emoji: '🌊', weeklyCO2: 122.9, habitatHealth: 55 },
+  { name: 'SolarStar_33', emoji: '⭐', weeklyCO2: 135.2, habitatHealth: 50 },
+  { name: 'EarthGuard_50', emoji: '🌍', weeklyCO2: 148.0, habitatHealth: 46 },
+  { name: 'GreenLife_8', emoji: '🌱', weeklyCO2: 162.4, habitatHealth: 42 },
+  { name: 'EcoPioneer_1', emoji: '🚀', weeklyCO2: 185.0, habitatHealth: 35 },
+  { name: 'NatureLover_77', emoji: '🌺', weeklyCO2: 210.5, habitatHealth: 30 },
+  { name: 'CarbonCutter_10', emoji: '✂️', weeklyCO2: 232.1, habitatHealth: 25 },
+];
+
 export default function Leaderboard({
   logs = [],
   currentStreak = 0,
-  habitatState = { trees: 0, flowers: 0, birds: 0 }
+  habitatState = { trees: 0, flowers: 0, birds: 0 },
+  unlockedBadges = [],
+  onUnlockBadge,
+  userName = 'You',
+  userWeeklyCO2 = 98.5,
+  weeklyDaysLogged = 7,
+  baselineScore = 22,
 }) {
   const [showConfetti, setShowConfetti] = useState(false);
   const [newlyUnlocked, setNewlyUnlocked] = useState(null);
-  const [previouslyUnlocked, setPreviouslyUnlocked] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem('ct_unlocked_badges') || '[]');
-    } catch {
-      return [];
-    }
-  });
 
+  /** Combine and sort user standings. */
+  const leaderboardData = useMemo(() => {
+    const userRow = {
+      name: (userName ? userName.trim() : '') || 'You',
+      emoji: '🏝️',
+      weeklyCO2: userWeeklyCO2,
+      habitatHealth: habitatState.healthScore || 50,
+      isCurrentUser: true,
+    };
+    const combined = [...SIMULATED_USERS, userRow];
+    combined.sort((a, b) => a.weeklyCO2 - b.weeklyCO2);
+    return combined.map((u, i) => ({ ...u, rank: i + 1 }));
+  }, [userName, userWeeklyCO2, habitatState.healthScore]);
+
+  const userRankInfo = useMemo(() => {
+    const self = leaderboardData.find((u) => u.isCurrentUser);
+    if (!self) return { rank: 1, total: leaderboardData.length, percentile: 100 };
+    const rank = self.rank;
+    const total = leaderboardData.length;
+    const percentile = Math.round(((total - rank) / (total - 1)) * 100);
+    return { rank, total, percentile };
+  }, [leaderboardData]);
+
+  const co2Difference = useMemo(() => {
+    const target = baselineScore * 7;
+    const diff = target - userWeeklyCO2;
+    return Math.round(diff * 10) / 10;
+  }, [baselineScore, userWeeklyCO2]);
 
   /** Evaluate which badges are unlocked. */
   const badgeStates = useMemo(() => {
@@ -137,27 +182,32 @@ export default function Leaderboard({
       .filter((b) => b.unlocked)
       .map((b) => b.id);
     const newBadges = currentUnlocked.filter(
-      (id) => !previouslyUnlocked.includes(id)
+      (id) => !unlockedBadges.includes(id)
     );
 
     if (newBadges.length > 0) {
-      setTimeout(() => {
-        setNewlyUnlocked(newBadges[0]);
+      const firstNew = newBadges[0];
+      let timer;
+      
+      const setupTimer = setTimeout(() => {
+        setNewlyUnlocked(firstNew);
         setShowConfetti(true);
-        setPreviouslyUnlocked(currentUnlocked);
+        if (onUnlockBadge) {
+          onUnlockBadge(firstNew);
+        }
+        
+        timer = setTimeout(() => {
+          setShowConfetti(false);
+          setNewlyUnlocked(null);
+        }, 3500);
       }, 0);
-      localStorage.setItem(
-        'ct_unlocked_badges',
-        JSON.stringify(currentUnlocked)
-      );
 
-      const timer = setTimeout(() => {
-        setShowConfetti(false);
-        setNewlyUnlocked(null);
-      }, 3500);
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(setupTimer);
+        if (timer) clearTimeout(timer);
+      };
     }
-  }, [badgeStates, previouslyUnlocked]);
+  }, [badgeStates, unlockedBadges, onUnlockBadge]);
 
   /** Handle badge click for details. */
   const handleBadgeClick = useCallback((badge) => {
@@ -172,10 +222,91 @@ export default function Leaderboard({
   }, []);
 
   return (
-    <div className="leaderboard" role="main" aria-label="Achievements and badges">
+    <div className="leaderboard" aria-label="Achievements and badges">
       <Confetti show={showConfetti} />
 
+      {/* ─── YOUR RANK HERO CARD ─────────────────────────────────── */}
+      <section className="lb-rank-card" aria-label="Your rank overview">
+        <div className="lb-rank-card__glow" />
+        <div className="lb-rank-card__content">
+          <div className="lb-rank-card__percentile-info">
+            <h2 className="lb-rank-card__percentile-title">
+              Greener than <span className="lb-rank-card__percent-highlight">{userRankInfo.percentile}%</span> of users
+            </h2>
+            <p className="lb-rank-card__comparison-text">
+              {co2Difference > 0 ? (
+                <span>
+                  🌸 Great job! You saved <strong>{co2Difference} kg</strong> of CO₂ this week compared to your baseline.
+                </span>
+              ) : (
+                <span>
+                  ⚠️ You emitted <strong>{Math.abs(co2Difference)} kg</strong> more than your weekly baseline target. Try a green swap!
+                </span>
+              )}
+            </p>
+          </div>
+          <div className="lb-rank-card__badge-wrapper">
+            <div className="lb-rank-card__badge" aria-label={`Rank ${userRankInfo.rank} of ${userRankInfo.total}`}>
+              <span className="lb-rank-card__badge-hash">#</span>
+              <span className="lb-rank-card__badge-num">{userRankInfo.rank}</span>
+            </div>
+            <span className="lb-rank-card__badge-label">Rank</span>
+          </div>
+        </div>
+      </section>
 
+      {/* ─── LEADERBOARD TABLE ───────────────────────────────────── */}
+      <section className="lb-table-section" aria-label="Social Leaderboard">
+        <h2 className="lb-section-title">
+          <span className="lb-section-title__icon" aria-hidden="true">🏆</span>
+          Social Standings
+        </h2>
+        {weeklyDaysLogged < 7 && (
+          <p className="lb-table-notice">
+            📅 Rank based on <strong>{weeklyDaysLogged}/7 days</strong> logged this week — keep logging daily to climb!
+          </p>
+        )}
+        <div className="lb-table-container">
+          <table className="lb-table">
+            <thead>
+              <tr>
+                <th scope="col" className="lb-table__th lb-table__th--rank">Rank</th>
+                <th scope="col" className="lb-table__th">Warrior</th>
+                <th scope="col" className="lb-table__th lb-table__th--right">Weekly CO₂</th>
+                <th scope="col" className="lb-table__th lb-table__th--right">Habitat Health</th>
+              </tr>
+            </thead>
+            <tbody>
+              {leaderboardData.map((player) => (
+                <tr
+                  key={player.name}
+                  className={`lb-table__tr ${player.isCurrentUser ? 'lb-table__tr--current' : ''}`}
+                >
+                  <td className="lb-table__td lb-table__td--rank">
+                    {player.rank === 1 ? '🥇' : player.rank === 2 ? '🥈' : player.rank === 3 ? '🥉' : player.rank}
+                  </td>
+                  <td className="lb-table__td">
+                    <span className="lb-table__avatar" aria-hidden="true">{player.emoji}</span>
+                    <span className="lb-table__name">
+                      {player.name}
+                      {player.isCurrentUser && <span className="lb-table__you-badge">YOU</span>}
+                    </span>
+                  </td>
+                  <td className="lb-table__td lb-table__td--right lb-table__td--co2">
+                    {player.weeklyCO2.toFixed(1)} kg
+                    {player.isCurrentUser && weeklyDaysLogged < 7 && (
+                      <span className="lb-table__days-tag">{weeklyDaysLogged}/7d</span>
+                    )}
+                  </td>
+                  <td className="lb-table__td lb-table__td--right">
+                    <span className="lb-table__health-val">{player.habitatHealth}%</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
       {/* ─── BADGES COLLECTION ───────────────────────────────────── */}
       <section className="lb-badges-section" aria-label="Badge collection">

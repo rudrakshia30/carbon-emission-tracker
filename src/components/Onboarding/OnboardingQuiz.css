@@ -1232,3 +1232,64 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Region Selection Grid ──────────────────────────────────── */
+.oq-region-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin: 12px 0 20px;
+}
+
+.oq-region-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 8px;
+  border-radius: 12px;
+  border: 1.5px solid var(--oq-glass-border);
+  background: var(--oq-glass);
+  color: var(--oq-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  font-family: var(--oq-font-body);
+}
+
+.oq-region-card:hover {
+  border-color: var(--oq-accent-green);
+  background: rgba(16, 185, 129, 0.08);
+  color: var(--oq-text-primary);
+  transform: translateY(-2px);
+}
+
+.oq-region-card--selected {
+  border-color: var(--oq-accent-green) !important;
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: var(--oq-text-primary) !important;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.25);
+}
+
+.oq-region-flag {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.oq-region-name {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: inherit;
+}
+
+.oq-region-target {
+  font-size: 0.65rem;
+  color: var(--oq-accent-green);
+  font-weight: 500;
+}
+
+@media (max-width: 500px) {
+  .oq-region-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

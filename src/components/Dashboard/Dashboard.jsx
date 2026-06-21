@@ -61,7 +61,7 @@ export default function Dashboard({ logs = [], streaks = { current: 0, best: 0 }
   const insights = useMemo(() => generateInsights(logs, baselineScore), [logs, baselineScore]);
 
   return (
-    <div className="dashboard" role="main" aria-label="Carbon footprint dashboard">
+    <div className="dashboard" aria-label="Carbon footprint dashboard">
 
       {/* Score Ring */}
       <section className="dash-score-section" aria-label="Today's carbon score">
@@ -102,10 +102,19 @@ export default function Dashboard({ logs = [], streaks = { current: 0, best: 0 }
         <h3 className="dash-card-title">📊 Category Breakdown</h3>
         <div className="dash-categories">
           {Object.entries(CATEGORY_COLORS).map(([key, cfg]) => (
-            <div key={key} className="dash-cat-row">
+            <div 
+              key={key} 
+              className="dash-cat-row"
+              role="progressbar"
+              aria-valuenow={percentages[key] || 0}
+              aria-valuemin="0"
+              aria-valuemax="100"
+              aria-label={`${cfg.label}: ${percentages[key] || 0}%`}
+              tabIndex={0}
+            >
               <span className="dash-cat-icon" aria-hidden="true">{cfg.icon}</span>
               <span className="dash-cat-label">{cfg.label}</span>
-              <div className="dash-cat-bar">
+              <div className="dash-cat-bar" aria-hidden="true">
                 <div
                   className="dash-cat-bar-fill"
                   style={{
@@ -135,12 +144,13 @@ export default function Dashboard({ logs = [], streaks = { current: 0, best: 0 }
                   aria-valuemin={0}
                   aria-valuemax={maxWeekly}
                   aria-label={`${day.dayName}: ${day.total} kg CO₂`}
+                  tabIndex={0}
                 />
                 {day.total > 0 && (
-                  <span className="dash-chart-value">{day.total}</span>
+                  <span className="dash-chart-value" aria-hidden="true">{day.total}</span>
                 )}
               </div>
-              <span className={`dash-chart-label ${day.date === todayStr ? 'dash-chart-label--today' : ''}`}>
+              <span className={`dash-chart-label ${day.date === todayStr ? 'dash-chart-label--today' : ''}`} aria-hidden="true">
                 {day.dayName}
               </span>
             </div>

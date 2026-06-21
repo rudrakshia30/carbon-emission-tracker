@@ -89,7 +89,7 @@ export default function Suggestions({ logs = [] }) {
   }, [maxCategory]);
 
   return (
-    <div className="suggestions" role="main" aria-label="Personalized Suggestions">
+    <div className="suggestions" aria-label="Personalized Suggestions">
       <div className="suggestions__header">
         <h1 className="suggestions__title">Personalized Tips</h1>
         <p className="suggestions__subtitle">

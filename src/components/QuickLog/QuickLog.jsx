@@ -515,6 +515,34 @@ export default function QuickLog({ onLog, emissionFactors, baselineScore = 22, e
     shopping: renderShopping
   };
 
+  /** Handles keyboard navigation between category tabs. */
+  const handleTabKeyDown = (e, currentIndex) => {
+    let nextIndex = currentIndex;
+
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      nextIndex = (currentIndex + 1) % CATEGORIES.length;
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      nextIndex = (currentIndex - 1 + CATEGORIES.length) % CATEGORIES.length;
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      nextIndex = 0;
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      nextIndex = CATEGORIES.length - 1;
+    }
+
+    if (nextIndex !== currentIndex) {
+      const nextCat = CATEGORIES[nextIndex];
+      setActiveTab(nextCat.id);
+      setTimeout(() => {
+        const btn = document.getElementById(`ql-tab-${nextCat.id}`);
+        btn?.focus();
+      }, 0);
+    }
+  };
+
   /* ── submission overlay ────────────────────────────── */
   const renderSubmitOverlay = () => {
     const isGood = totalCO2 < baselineScore;
@@ -544,7 +572,7 @@ export default function QuickLog({ onLog, emissionFactors, baselineScore = 22, e
 
       {/* Tab bar */}
       <nav className="ql-tabs" role="tablist" aria-label="Activity categories">
-        {CATEGORIES.map(cat => (
+        {CATEGORIES.map((cat, index) => (
           <button
             key={cat.id}
             id={`ql-tab-${cat.id}`}
@@ -553,6 +581,8 @@ export default function QuickLog({ onLog, emissionFactors, baselineScore = 22, e
             aria-controls={`ql-panel-${cat.id}`}
             className={`ql-tabs__tab ${activeTab === cat.id ? 'ql-tabs__tab--active' : ''}`}
             onClick={() => setActiveTab(cat.id)}
+            onKeyDown={(e) => handleTabKeyDown(e, index)}
+            tabIndex={activeTab === cat.id ? 0 : -1}
           >
             <span className="ql-tabs__emoji" aria-hidden="true">{cat.emoji}</span>
             <span className="ql-tabs__label">{cat.label}</span>

@@ -5,6 +5,7 @@
 
 import { useState, useMemo } from 'react';
 import { getHabitatNarrative } from '../Habitat/habitatEngine';
+import { getApiKey, storeApiKey } from '../../utils/security';
 import './WeeklyStory.css';
 
 /**
@@ -72,10 +73,10 @@ export default function WeeklyStory({ weeklyData = [], habitatState = {}, logs =
   const [isGenerating, setIsGenerating] = useState(false);
   const [story, setStory] = useState(null);
   const [apiKeyInput, setApiKeyInput] = useState(() => {
-    // Prefer env var, then sessionStorage (not localStorage — keys shouldn't persist across sessions)
+    // Prefer env var, then sessionStorage (via security helpers)
     const envKey = import.meta.env.VITE_GEMINI_API_KEY || '';
     if (envKey) return '';
-    try { return sessionStorage.getItem('ct_gk') || ''; } catch { return ''; }
+    return getApiKey();
   });
   const [showSettings, setShowSettings] = useState(false);
 
@@ -89,21 +90,16 @@ export default function WeeklyStory({ weeklyData = [], habitatState = {}, logs =
   const handleSaveKey = (e) => {
     const val = e.target.value;
     setApiKeyInput(val);
-    // Store in sessionStorage (not localStorage) — clears on tab close, not persisted
-    try { sessionStorage.setItem('ct_gk', val.trim()); } catch { /* unavailable */ }
+    storeApiKey(val);
   };
 
   const handleGenerate = async () => {
     setIsGenerating(true);
     setStory(null);
 
-    const envKey = import.meta.env.VITE_GEMINI_API_KEY || '';
-    let apiKey = envKey.trim();
+    const apiKey = getApiKey();
     if (!apiKey) {
-      try { apiKey = sessionStorage.getItem('ct_gk') || ''; } catch { apiKey = ''; }
-    }
-    if (!apiKey) {
-      console.warn("No Gemini API key found (VITE_GEMINI_API_KEY or localStorage). Falling back to template story.");
+      console.warn("No Gemini API key found (VITE_GEMINI_API_KEY or sessionStorage). Falling back to template story.");
       // Short delay for satisfying UX shimmer
       await new Promise((resolve) => setTimeout(resolve, 1200));
       setStory(templateStory);

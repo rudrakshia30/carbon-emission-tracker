@@ -5,10 +5,11 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { EMISSION_FACTORS } from '../../data/emissionFactors';
+import { REGION_TARGETS, REGION_ORDER, getRegionTarget } from '../../data/regionTargets';
 import { sanitizeString, MAX_NAME_LENGTH } from '../../utils/security';
 import './OnboardingQuiz.css';
 
-const STEPS = ['welcome', 'name', 'transport', 'diet', 'energy', 'results'];
+const STEPS = ['welcome', 'name', 'region', 'transport', 'diet', 'energy', 'results'];
 
 const TRANSPORT_OPTIONS = [
   { id: 'car', emoji: '🚗', label: 'Car' },
@@ -47,6 +48,7 @@ export default function OnboardingQuiz({ onComplete }) {
   const [step, setStep] = useState(0);
 
   const [name, setName] = useState('');
+  const [region, setRegion] = useState('global');
   const [transportMode, setTransportMode] = useState('car');
   const [dailyKm, setDailyKm] = useState(10);
   const [diet, setDiet] = useState('');
@@ -108,6 +110,7 @@ export default function OnboardingQuiz({ onComplete }) {
     const baseline = scoreRef.current;
     onComplete({
       name: name.trim() || 'Explorer',
+      region,
       transport: { mode: transportMode, dailyDistanceKm: dailyKm },
       diet: diet || 'omnivore',
       energy: { acHoursPerDay: acHours, longShowers, energyConscious },
@@ -219,8 +222,42 @@ export default function OnboardingQuiz({ onComplete }) {
           </div>
         </div>
 
-        {/* Step 2: Transport */}
+        {/* Step 2: Region */}
         <div className={getStepClass(2)}>
+          <div className="oq-card">
+            <h2 className="oq-heading">Where are you based?</h2>
+            <p className="oq-subheading">We'll use your region's carbon target & grid intensity</p>
+            <div className="oq-region-grid" role="radiogroup" aria-label="Select your region">
+              {REGION_ORDER.map((id) => {
+                const r = REGION_TARGETS[id];
+                return (
+                  <button
+                    key={id}
+                    id={`oq-region-${id}`}
+                    className={`oq-region-card ${region === id ? 'oq-region-card--selected' : ''}`}
+                    onClick={() => setRegion(id)}
+                    role="radio"
+                    aria-checked={region === id}
+                    type="button"
+                  >
+                    <span className="oq-region-flag" aria-hidden="true">{r.flag}</span>
+                    <span className="oq-region-name">{r.label}</span>
+                    <span className="oq-region-target">{r.dailyTargetKg} kg/day target</span>
+                  </button>
+                );
+              })}
+            </div>
+            <div className="oq-actions">
+              <button className="oq-btn-secondary" onClick={goBack}>← Back</button>
+              <button id="oq-btn-region-next" className="oq-btn-primary" onClick={goNext}>
+                Continue →
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Step 3: Transport */}
+        <div className={getStepClass(3)}>
           <div className="oq-card">
             <h2 className="oq-heading">How do you get around?</h2>
             <p className="oq-subheading">Select your primary transport mode</p>
@@ -263,8 +300,8 @@ export default function OnboardingQuiz({ onComplete }) {
           </div>
         </div>
 
-        {/* Step 3: Diet */}
-        <div className={getStepClass(3)}>
+        {/* Step 4: Diet */}
+        <div className={getStepClass(4)}>
           <div className="oq-card">
             <h2 className="oq-heading">What best describes your diet?</h2>
             <p className="oq-subheading">Your food choices have a huge impact</p>
@@ -299,8 +336,8 @@ export default function OnboardingQuiz({ onComplete }) {
           </div>
         </div>
 
-        {/* Step 4: Energy */}
-        <div className={getStepClass(4)}>
+        {/* Step 5: Energy */}
+        <div className={getStepClass(5)}>
           <div className="oq-card">
             <h2 className="oq-heading">Your home energy habits</h2>
             <p className="oq-subheading">Help us estimate your energy footprint</p>
@@ -365,8 +402,8 @@ export default function OnboardingQuiz({ onComplete }) {
           </div>
         </div>
 
-        {/* Step 5: Results */}
-        <div className={getStepClass(5)}>
+        {/* Step 6: Results */}
+        <div className={getStepClass(6)}>
           <div className="oq-results">
             <div className="oq-card">
               <h2 className="oq-heading oq-animate-in">Your Carbon Baseline</h2>
@@ -385,25 +422,25 @@ export default function OnboardingQuiz({ onComplete }) {
                   </span>
                   <span className="oq-comparison-label">
                     <span className="oq-comparison-dot oq-comparison-dot--average" />
-                    Target: 22 kg/day
+                    {REGION_TARGETS[region].flag} {REGION_TARGETS[region].label} target: {getRegionTarget(region)} kg/day
                   </span>
                 </div>
                 <div className="oq-comparison-bar">
                   <div
                     className="oq-comparison-fill oq-comparison-fill--user"
-                    style={{ width: `${Math.min(100, (animatedScore / 30) * 100)}%` }}
+                    style={{ width: `${Math.min(100, (animatedScore / (getRegionTarget(region) * 1.5)) * 100)}%` }}
                   />
                 </div>
               </div>
               <p className="oq-result-message oq-animate-in oq-animate-in--delay-3">
-                {animatedScore < 15
-                  ? "Great start! You're already below the high-income average target. Let's keep your island thriving! 🌳"
-                  : animatedScore < 22
-                    ? "Not bad! You're close to the target. Small changes can make your island flourish! 🌿"
-                    : "There's room to improve — but that's why you're here! Let's grow your island together. 🏝️"}
+                {animatedScore < getRegionTarget(region) * 0.7
+                  ? `Great start! You're well below the ${REGION_TARGETS[region].label} target. Let's keep your island thriving! 🌳`
+                  : animatedScore < getRegionTarget(region)
+                    ? `Not bad! You're close to the ${REGION_TARGETS[region].label} target. Small changes can make your island flourish! 🌿`
+                    : `There's room to improve — but that's why you're here! Let's grow your island together. 🏝️`}
               </p>
               <p className="carbon-footnote oq-animate-in oq-animate-in--delay-3">
-                Based on India's 2024 per-capita estimate of 5.6 kg/day (IEA) vs. global high-income target of 22 kg/day. Grid & LCA factors verified against IPCC, US EPA, & UK DEFRA (2024).
+                Target based on {REGION_TARGETS[region].label}'s 1.5°C pathway ({REGION_TARGETS[region].dailyTargetKg} kg/day). Current regional average: {REGION_TARGETS[region].currentAvgKg} kg/day. Source: {REGION_TARGETS[region].source}.
               </p>
               <div className="oq-actions oq-actions--center oq-animate-in oq-animate-in--delay-3">
                 <button

@@ -34,7 +34,15 @@ describe('OnboardingQuiz Component', () => {
     const nameNextBtn = container.querySelector('#oq-btn-name-next');
     fireEvent.click(nameNextBtn);
 
-    // Step 2: Transport
+    // Step 2: Region — select India
+    expect(screen.getByText('Where are you based?')).toBeInTheDocument();
+    const indiaBtn = container.querySelector('#oq-region-india');
+    expect(indiaBtn).toBeInTheDocument();
+    fireEvent.click(indiaBtn);
+    const regionNextBtn = container.querySelector('#oq-btn-region-next');
+    fireEvent.click(regionNextBtn);
+
+    // Step 3: Transport
     expect(screen.getByText('How do you get around?')).toBeInTheDocument();
     
     // Choose Train mode
@@ -50,7 +58,7 @@ describe('OnboardingQuiz Component', () => {
     const transportNextBtn = container.querySelector('#oq-btn-transport-next');
     fireEvent.click(transportNextBtn);
 
-    // Step 3: Diet
+    // Step 4: Diet
     expect(screen.getByText('What best describes your diet?')).toBeInTheDocument();
     const dietNextBtn = container.querySelector('#oq-btn-diet-next');
     
@@ -66,7 +74,7 @@ describe('OnboardingQuiz Component', () => {
     expect(dietNextBtn).not.toBeDisabled();
     fireEvent.click(dietNextBtn);
 
-    // Step 4: Energy
+    // Step 5: Energy
     expect(screen.getByText('Your home energy habits')).toBeInTheDocument();
     
     // Adjust AC hours to 4
@@ -87,7 +95,7 @@ describe('OnboardingQuiz Component', () => {
     const energyNextBtn = container.querySelector('#oq-btn-energy-next');
     fireEvent.click(energyNextBtn);
 
-    // Step 5: Results
+    // Step 6: Results
     expect(screen.getByText('Your Carbon Baseline')).toBeInTheDocument();
 
     // Advance the mock timers so the score counter reaches the target
@@ -116,6 +124,7 @@ describe('OnboardingQuiz Component', () => {
     expect(handleComplete).toHaveBeenCalledTimes(1);
     expect(handleComplete).toHaveBeenCalledWith({
       name: 'Eco Explorer',
+      region: 'india',
       transport: { mode: 'train', dailyDistanceKm: 20 },
       diet: 'vegetarian',
       energy: { acHoursPerDay: 4, longShowers: true, energyConscious: true },
@@ -134,7 +143,7 @@ describe('OnboardingQuiz Component', () => {
     const nameInput = screen.getByLabelText('Your name');
     fireEvent.change(nameInput, { target: { value: 'Tester' } });
 
-    // Go to Transport step
+    // Go to Region step (step 2)
     fireEvent.click(container.querySelector('#oq-btn-name-next'));
 
     // Go back to Name step
@@ -143,5 +152,24 @@ describe('OnboardingQuiz Component', () => {
 
     // Verify name is preserved
     expect(screen.getByLabelText('Your name')).toHaveValue('Tester');
+  });
+
+  it('should allow selecting a region and show it as selected', () => {
+    const { container } = render(<OnboardingQuiz onComplete={vi.fn()} />);
+
+    // Navigate to region step
+    fireEvent.click(container.querySelector('#oq-btn-begin'));
+    fireEvent.click(container.querySelector('#oq-btn-name-next'));
+
+    // Select Europe
+    const europeBtn = container.querySelector('#oq-region-europe');
+    fireEvent.click(europeBtn);
+    expect(europeBtn).toHaveClass('oq-region-card--selected');
+    expect(europeBtn).toHaveAttribute('aria-checked', 'true');
+
+    // Other regions should not be selected
+    const usaBtn = container.querySelector('#oq-region-usa');
+    expect(usaBtn).not.toHaveClass('oq-region-card--selected');
+    expect(usaBtn).toHaveAttribute('aria-checked', 'false');
   });
 });

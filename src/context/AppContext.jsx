@@ -23,6 +23,7 @@ const initialState = {
   /** User profile from onboarding quiz */
   user: {
     name: '',
+    region: 'global',
     transport: { mode: 'car', dailyDistanceKm: 10 },
     diet: 'omnivore',
     energy: { acHoursPerDay: 2, longShowers: false, energyConscious: false },

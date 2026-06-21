@@ -51,6 +51,7 @@ const ALLOWED_DIET_VALUES = ['omnivore', 'flexitarian', 'vegetarian', 'vegan'];
 const ALLOWED_TRANSPORT_MODES = ['car', 'car_gasoline', 'car_diesel', 'car_electric', 'bus',
   'train', 'bicycle', 'walking', 'motorcycle', 'ride_share', 'airplane'];
 const ALLOWED_TABS = ['habitat', 'log', 'dashboard', 'leaderboard', 'suggestions'];
+export const ALLOWED_REGIONS = ['india', 'europe', 'usa', 'china', 'uk', 'australia', 'brazil', 'global'];
 
 /**
  * Validate and sanitize the persisted state object loaded from localStorage.
@@ -62,66 +63,164 @@ export function validatePersistedState(raw) {
   if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) return null;
 
   try {
-    // Validate user object
-    if (raw.user) {
-      raw.user.name = sanitizeString(raw.user.name ?? '', MAX_NAME_LENGTH);
-      raw.user.baselineScore = clampNumber(raw.user.baselineScore, 0, 200, 22);
+    // 1. Validate user name (strictly alphanumeric/spaces/dashes/underscores)
+    const rawName = raw.user && typeof raw.user.name === 'string' ? raw.user.name : '';
+    const cleanName = rawName.replace(/[^a-zA-Z0-9\s-_]/g, '').trim().slice(0, MAX_NAME_LENGTH);
 
-      if (raw.user.transport) {
-        if (!ALLOWED_TRANSPORT_MODES.includes(raw.user.transport.mode)) {
-          raw.user.transport.mode = 'car';
-        }
-        raw.user.transport.dailyDistanceKm = clampNumber(
-          raw.user.transport.dailyDistanceKm, 0, 500, 10
-        );
-      }
+    const user = {
+      name: cleanName,
+      baselineScore: clampNumber(raw.user?.baselineScore, 0, 200, 22),
+      region: ALLOWED_REGIONS.includes(raw.user?.region) ? raw.user.region : 'global',
+      transport: {
+        mode: ALLOWED_TRANSPORT_MODES.includes(raw.user?.transport?.mode)
+          ? raw.user.transport.mode
+          : 'car',
+        dailyDistanceKm: clampNumber(raw.user?.transport?.dailyDistanceKm, 0, 500, 10),
+      },
+      diet: ALLOWED_DIET_VALUES.includes(raw.user?.diet) ? raw.user.diet : 'omnivore',
+      energy: {
+        acHoursPerDay: clampNumber(raw.user?.energy?.acHoursPerDay, 0, 24, 2),
+        longShowers: !!raw.user?.energy?.longShowers,
+        energyConscious: !!raw.user?.energy?.energyConscious,
+      },
+    };
 
-      if (!ALLOWED_DIET_VALUES.includes(raw.user.diet)) {
-        raw.user.diet = 'omnivore';
-      }
-
-      if (raw.user.energy) {
-        raw.user.energy.acHoursPerDay = clampNumber(raw.user.energy.acHoursPerDay, 0, 24, 2);
-        raw.user.energy.longShowers = !!raw.user.energy.longShowers;
-        raw.user.energy.energyConscious = !!raw.user.energy.energyConscious;
-      }
-    }
-
-    // Validate logs array — cap entries and sanitize each
+    // 2. Validate logs array — cap entries and deeply sanitize each log structure
+    let logs = [];
     if (Array.isArray(raw.logs)) {
-      raw.logs = raw.logs
-        .slice(-MAX_LOG_ENTRIES) // keep only the most recent N entries
+      logs = raw.logs
+        .slice(-MAX_LOG_ENTRIES)
         .filter((l) => typeof l === 'object' && l !== null)
-        .map((l) => ({
-          ...l,
-          totalCO2: clampNumber(l.totalCO2, 0, 10000, 0),
-          transport: clampNumber(l.transport, 0, 5000, 0),
-          food: clampNumber(l.food, 0, 5000, 0),
-          energy: clampNumber(l.energy, 0, 5000, 0),
-          shopping: clampNumber(l.shopping, 0, 5000, 0),
-          // date must be a valid ISO string
-          date: typeof l.date === 'string' && !isNaN(Date.parse(l.date))
-            ? l.date
-            : new Date().toISOString(),
-        }));
+        .map((l) => {
+          // Validate rawTransport array
+          const rawTransport = Array.isArray(l.rawTransport)
+            ? l.rawTransport
+                .filter((t) => typeof t === 'object' && t !== null)
+                .map((t) => ({
+                  mode: ALLOWED_TRANSPORT_MODES.includes(t.mode) ? t.mode : 'car',
+                  distanceKm: clampNumber(t.distanceKm, 0, 10000, 0),
+                }))
+            : [];
+
+          // Validate meals array
+          const meals = Array.isArray(l.meals)
+            ? l.meals
+                .filter((m) => typeof m === 'object' && m !== null)
+                .map((m) => ({
+                  type: sanitizeString(m.type, 50),
+                  meal: ['breakfast', 'lunch', 'dinner'].includes(m.meal) ? m.meal : 'breakfast',
+                }))
+            : [];
+
+          // Validate rawEnergy object
+          const rawEnergy = typeof l.rawEnergy === 'object' && l.rawEnergy !== null
+            ? {
+                ac: clampNumber(l.rawEnergy.ac, 0, 24, 0),
+                heating: clampNumber(l.rawEnergy.heating, 0, 24, 0),
+                shower: !!l.rawEnergy.shower,
+                laundry: !!l.rawEnergy.laundry,
+                dishwasher: !!l.rawEnergy.dishwasher,
+              }
+            : { ac: 0, heating: 0, shower: false, laundry: false, dishwasher: false };
+
+          // Validate rawShopping object
+          const rawShopping = typeof l.rawShopping === 'object' && l.rawShopping !== null
+            ? Object.fromEntries(
+                Object.entries(l.rawShopping).map(([k, v]) => [
+                  sanitizeString(k, 50),
+                  clampNumber(v, 0, 100, 0),
+                ])
+              )
+            : {};
+
+          return {
+            id: typeof l.id === 'string' ? sanitizeString(l.id, 50) : Date.now().toString(),
+            date: typeof l.date === 'string' && !isNaN(Date.parse(l.date))
+              ? l.date
+              : new Date().toISOString(),
+            totalCO2: clampNumber(l.totalCO2, 0, 10000, 0),
+            transport: clampNumber(l.transport, 0, 5000, 0),
+            food: clampNumber(l.food, 0, 5000, 0),
+            energy: clampNumber(l.energy, 0, 5000, 0),
+            shopping: clampNumber(l.shopping, 0, 5000, 0),
+            rawTransport,
+            meals,
+            rawEnergy,
+            rawShopping,
+          };
+        });
+    }
+
+    // 3. Validate habitat state
+    let habitat;
+    if (raw.habitat && typeof raw.habitat === 'object') {
+      habitat = {
+        healthScore: clampNumber(raw.habitat.healthScore, 0, 100, 50),
+        trees: clampNumber(raw.habitat.trees, 0, 100, 3),
+        flowers: clampNumber(raw.habitat.flowers, 0, 100, 0),
+        birds: clampNumber(raw.habitat.birds, 0, 100, 0),
+        smogLevel: clampNumber(raw.habitat.smogLevel, 0, 1, 0.3),
+        waterClarity: clampNumber(raw.habitat.waterClarity, 0, 1, 0.7),
+        hasRainbow: !!raw.habitat.hasRainbow,
+        particles: [],
+      };
     } else {
-      raw.logs = [];
+      habitat = {
+        healthScore: 50,
+        trees: 3,
+        flowers: 0,
+        birds: 0,
+        smogLevel: 0.3,
+        waterClarity: 0.7,
+        hasRainbow: false,
+        particles: [],
+      };
     }
 
-    // Validate activeTab
-    if (!ALLOWED_TABS.includes(raw.activeTab)) {
-      raw.activeTab = 'habitat';
+    // 4. Validate streaks
+    const streaks = {
+      current: clampNumber(raw.streaks?.current, 0, 3650, 0),
+      best: clampNumber(raw.streaks?.best, 0, 3650, 0),
+    };
+
+    // 5. Validate weeklyInsights
+    let weeklyInsights = [];
+    if (Array.isArray(raw.weeklyInsights)) {
+      weeklyInsights = raw.weeklyInsights
+        .filter((ins) => typeof ins === 'object' && ins !== null)
+        .map((ins) => ({
+          text: sanitizeString(ins.text, 500),
+          icon: sanitizeString(ins.icon, 10),
+          type: ['positive', 'warning', 'tip'].includes(ins.type) ? ins.type : 'tip',
+        }));
     }
 
-    // Validate streaks
-    if (raw.streaks) {
-      raw.streaks.current = clampNumber(raw.streaks.current, 0, 3650, 0);
-      raw.streaks.best = clampNumber(raw.streaks.best, 0, 3650, 0);
+    // 6. Validate activeTab
+    const activeTab = ALLOWED_TABS.includes(raw.activeTab) ? raw.activeTab : 'habitat';
+
+    // 7. Validate unlockedBadges array
+    const ALLOWED_BADGES = [
+      'first_log', 'streak_3', 'streak_7', 'forest', 'cyclist',
+      'plant_power', 'energy_saver', 'under_target', 'half_target'
+    ];
+    let unlockedBadges = [];
+    if (Array.isArray(raw.unlockedBadges)) {
+      unlockedBadges = raw.unlockedBadges
+        .filter((b) => typeof b === 'string' && ALLOWED_BADGES.includes(b));
     }
 
-    return raw;
+    // 8. Reconstruct clean, validated state
+    return {
+      onboarded: !!raw.onboarded,
+      user,
+      logs,
+      habitat,
+      streaks,
+      weeklyInsights,
+      activeTab,
+      unlockedBadges,
+    };
   } catch {
-    // If anything throws during validation, reject the payload
     return null;
   }
 }
