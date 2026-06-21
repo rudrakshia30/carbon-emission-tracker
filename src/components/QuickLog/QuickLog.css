@@ -627,11 +627,14 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
 }
 
 .ql-distance-row__label {
   font-size: 13px;
   color: var(--text-primary, #f9fafb);
+  flex: 1;
+  min-width: 0;
 }
 
 .ql-distance-row__label strong {
@@ -651,5 +654,56 @@
 
 .ql-distance-row__remove-btn:hover {
   color: var(--accent-red, #ef4444);
+}
+
+/* ─── Live CO₂ label in distance row ─────────────────────── */
+.ql-distance-row__co2-live {
+  font-size: 12px;
+  font-weight: 700;
+  color: #f97316;
+  background: rgba(249, 115, 22, 0.12);
+  border: 1px solid rgba(249, 115, 22, 0.25);
+  border-radius: 8px;
+  padding: 2px 8px;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.ql-distance-row__co2-live--zero {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+/* ─── Quick distance buttons in distance row ──────────────── */
+.ql-distance-row__quick-btns {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.ql-distance-row__quick-btn {
+  padding: 4px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  color: var(--text-muted, #6b7280);
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.ql-distance-row__quick-btn:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text-secondary, #9ca3af);
+}
+
+.ql-distance-row__quick-btn--active {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: var(--accent-green, #10b981);
+  color: var(--accent-green, #10b981);
 }
 

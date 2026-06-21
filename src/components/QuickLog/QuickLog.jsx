@@ -342,11 +342,19 @@ export default function QuickLog({ onLog, emissionFactors, baselineScore = 22, e
             {Object.entries(transportLogs).map(([modeId, dist]) => {
               const mode = TRANSPORT_MODES.find(m => m.id === modeId);
               if (!mode) return null;
+              const factor = factors.transportation[mode.factorKey] || 0;
+              const modeCO2 = factor * dist;
+              const isZeroEmission = factor === 0;
               return (
                 <div key={modeId} className="ql-distance-row">
                   <div className="ql-distance-row__header">
                     <span className="ql-distance-row__label">
                       {mode.emoji} {mode.label}: <strong>{dist} km</strong>
+                    </span>
+                    <span className={`ql-distance-row__co2-live ${isZeroEmission ? 'ql-distance-row__co2-live--zero' : ''}`}>
+                      {isZeroEmission
+                        ? '♻️ Zero CO₂'
+                        : `+${modeCO2.toFixed(2)} kg CO₂`}
                     </span>
                     <button 
                       className="ql-distance-row__remove-btn" 
@@ -372,6 +380,20 @@ export default function QuickLog({ onLog, emissionFactors, baselineScore = 22, e
                     className="ql-range-slider"
                     aria-label={`${mode.label} distance in kilometers`}
                   />
+                  {!isZeroEmission && (
+                    <div className="ql-distance-row__quick-btns">
+                      {[5, 10, 20, 50, 100].map(km => (
+                        <button
+                          key={km}
+                          className={`ql-distance-row__quick-btn ${dist === km ? 'ql-distance-row__quick-btn--active' : ''}`}
+                          onClick={() => setTransportLogs(prev => ({ ...prev, [modeId]: km }))}
+                          aria-label={`Set ${mode.label} distance to ${km} km`}
+                        >
+                          {km}km
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               );
             })}
