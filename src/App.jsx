@@ -17,7 +17,7 @@ import BottomNav from './components/UI/BottomNav';
 import Toast from './components/UI/Toast';
 import ErrorBoundary from './components/UI/ErrorBoundary';
 import { EMISSION_FACTORS } from './data/emissionFactors';
-import { getWeeklyAverage, getLocalDateString } from './utils/carbonCalculator';
+import { getWeeklyAverage, getWeeklyTotals, getLocalDateString } from './utils/carbonCalculator';
 import { generateMicroAction } from './utils/microActionGenerator';
 import './App.css';
 
@@ -30,6 +30,7 @@ function App() {
     addToast,
     dismissToast,
     resetApp,
+    unlockBadge,
   } = useApp();
 
   const habitatRef = useRef(null);
@@ -52,9 +53,17 @@ function App() {
     [state.logs, state.habitat]
   );
 
-  // Weekly CO2 for leaderboard
+  // Weekly CO2 for leaderboard — use actual 7-day sum, not projected avg×7
+  // Using avg×7 caused rank to be frozen (e.g. 1 day at 9kg → 9×7=63 → always rank 4)
   const weeklyAvg = useMemo(() => getWeeklyAverage(state.logs), [state.logs]);
-  const userWeeklyCO2 = Math.round(weeklyAvg * 7 * 10) / 10 || 98.5;
+  const weeklyDayTotals = useMemo(() => getWeeklyTotals(state.logs), [state.logs]);
+  const userWeeklyCO2 = useMemo(() => {
+    const actual = Math.round(
+      weeklyDayTotals.reduce((sum, d) => sum + d.total, 0) * 10
+    ) / 10;
+    // Fallback 98.5 only when user has genuinely no logs this week
+    return actual > 0 ? actual : 98.5;
+  }, [weeklyDayTotals]);
 
   /* ── Onboarding ──────────────────────────────────── */
   if (!state.onboarded) {
@@ -198,17 +207,20 @@ function App() {
                 {/* Time of Day Control */}
                 <div className="sim-control">
                   <div className="sim-control__header">
-                    <label className="sim-control__label">
+                    <label htmlFor="sim-time-slider" className="sim-control__label">
                       🌅 Time of Day: <strong>{isRealTime ? 'Auto (Real-time)' : `${Math.floor(manualTime)}:00`}</strong>
                     </label>
                     <button
                       className={`sim-control__toggle-btn ${isRealTime ? '' : 'sim-control__toggle-btn--active'}`}
                       onClick={() => setIsRealTime(!isRealTime)}
+                      aria-label={isRealTime ? 'Unlock time of day control' : 'Lock to real time'}
+                      type="button"
                     >
                       {isRealTime ? '🔓 Unlock' : '🔒 Lock to Real'}
                     </button>
                   </div>
                   <input
+                    id="sim-time-slider"
                     type="range"
                     min="0"
                     max="23.9"
@@ -217,17 +229,22 @@ function App() {
                     value={isRealTime ? new Date().getHours() : manualTime}
                     onChange={(e) => setManualTime(parseFloat(e.target.value))}
                     className="sim-control__slider"
+                    aria-label={`Time of day: ${isRealTime ? 'Auto real-time' : `${Math.floor(manualTime)}:00`}`}
+                    aria-valuemin={0}
+                    aria-valuemax={23}
+                    aria-valuenow={isRealTime ? new Date().getHours() : Math.floor(manualTime)}
                   />
                 </div>
 
                 {/* Wind Speed Control */}
                 <div className="sim-control">
                   <div className="sim-control__header">
-                    <label className="sim-control__label">
+                    <label htmlFor="sim-wind-slider" className="sim-control__label">
                       💨 Wind Speed: <strong>{windSpeed}x</strong>
                     </label>
                   </div>
                   <input
+                    id="sim-wind-slider"
                     type="range"
                     min="0"
                     max="10"
@@ -235,6 +252,10 @@ function App() {
                     value={windSpeed}
                     onChange={(e) => setWindSpeed(parseInt(e.target.value))}
                     className="sim-control__slider"
+                    aria-label={`Wind speed: ${windSpeed} out of 10`}
+                    aria-valuemin={0}
+                    aria-valuemax={10}
+                    aria-valuenow={windSpeed}
                   />
                 </div>
 
@@ -325,6 +346,11 @@ function App() {
               currentStreak={state.streaks.current}
               habitatState={state.habitat}
               userWeeklyCO2={userWeeklyCO2}
+              weeklyDaysLogged={weeklyDayTotals.filter(d => d.hasLog).length}
+              unlockedBadges={state.unlockedBadges}
+              onUnlockBadge={unlockBadge}
+              userName={state.user.name}
+              baselineScore={state.user.baselineScore}
             />
           </ErrorBoundary>
         </div>
