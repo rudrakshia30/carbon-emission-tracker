@@ -74,7 +74,6 @@ function App() {
   const handleLog = (logEntry) => {
     addLog(logEntry);
 
-    // Trigger habitat effect
     if (habitatRef.current) {
       if (logEntry.totalCO2 < state.user.baselineScore) {
         habitatRef.current.triggerEffect('sparkle');
