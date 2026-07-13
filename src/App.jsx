@@ -1,8 +1,3 @@
-/**
- * App — Main application shell for CarbonTwin.
- * Orchestrates onboarding, tab navigation, and all top-level panels.
- */
-
 import { useRef, useMemo, useState } from 'react';
 import { useApp } from './context/AppContext';
 import OnboardingQuiz from './components/Onboarding/OnboardingQuiz';
