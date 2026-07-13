@@ -319,7 +319,6 @@
   cursor: not-allowed;
 }
 
-/* Checkbox Toggle Wrapper */
 .sim-control__checkbox-wrapper {
   display: flex;
   justify-content: space-between;
