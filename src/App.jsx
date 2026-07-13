@@ -114,7 +114,6 @@ function App() {
     }
   };
 
-  /* ── Render panels ───────────────────────────────── */
   return (
     <div className="app">
       {/* Reset button */}
