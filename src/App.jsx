@@ -52,7 +52,7 @@ function App() {
     const actual = Math.round(
       weeklyDayTotals.reduce((sum, d) => sum + d.total, 0) * 10
     ) / 10;
-    // Fallback 98.5 only when user has genuinely no logs this week
+    
     return actual > 0 ? actual : 98.5;
   }, [weeklyDayTotals]);
 
