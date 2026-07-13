@@ -203,7 +203,6 @@
   pointer-events: auto;
 }
 
-/* ─── Simulation Panel ─────────────────────────────────────── */
 .simulation-panel {
   background: var(--glass, rgba(255, 255, 255, 0.03));
   border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08));
