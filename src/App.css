@@ -187,7 +187,6 @@
   color: var(--accent-red, #ef4444);
 }
 
-/* ─── Toast container ─────────────────────────────────────── */
 .app__toasts {
   position: fixed;
   top: 16px;
