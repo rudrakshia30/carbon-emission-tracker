@@ -163,7 +163,6 @@
   color: var(--accent-emerald, #34d399);
 }
 
-/* ─── Reset button ────────────────────────────────────────── */
 .app__reset-btn {
   position: fixed;
   top: 12px;
