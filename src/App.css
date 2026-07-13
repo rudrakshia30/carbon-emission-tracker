@@ -8,7 +8,6 @@
   background: var(--bg-primary, #0a0e17);
 }
 
-/* Ambient background gradient orbs */
 .app::before,
 .app::after {
   content: '';
