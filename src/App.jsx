@@ -37,7 +37,6 @@ function App() {
   const [windSpeed, setWindSpeed] = useState(3);
   const [showEcoHome, setShowEcoHome] = useState(true);
 
-  // Find existing log for today to pre-populate QuickLog
   const todayStr = getLocalDateString();
   const existingLogForToday = useMemo(() => {
     return state.logs.find(l => l.date && getLocalDateString(l.date) === todayStr);
