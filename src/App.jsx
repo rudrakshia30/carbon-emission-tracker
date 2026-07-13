@@ -32,7 +32,6 @@ function App() {
 
   const habitatRef = useRef(null);
 
-  // Simulation controls state
   const [manualTime, setManualTime] = useState(12);
   const [isRealTime, setIsRealTime] = useState(true);
   const [windSpeed, setWindSpeed] = useState(3);
