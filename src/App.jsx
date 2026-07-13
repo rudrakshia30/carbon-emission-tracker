@@ -82,7 +82,6 @@ function App() {
       }
     }
 
-    // Toast feedback
     const isGood = logEntry.totalCO2 < state.user.baselineScore;
     addToast({
       message: isGood
