@@ -42,7 +42,6 @@ function App() {
     return state.logs.find(l => l.date && getLocalDateString(l.date) === todayStr);
   }, [state.logs, todayStr]);
 
-  // Generate daily micro-action suggestion
   const microAction = useMemo(
     () => generateMicroAction(state.logs, state.habitat),
     [state.logs, state.habitat]
