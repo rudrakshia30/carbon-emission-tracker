@@ -71,7 +71,6 @@ function App() {
     );
   }
 
-  /* ── Log handler ─────────────────────────────────── */
   const handleLog = (logEntry) => {
     addLog(logEntry);
 
