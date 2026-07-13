@@ -52,11 +52,10 @@ function App() {
     const actual = Math.round(
       weeklyDayTotals.reduce((sum, d) => sum + d.total, 0) * 10
     ) / 10;
-    
+
     return actual > 0 ? actual : 98.5;
   }, [weeklyDayTotals]);
 
-  /* ── Onboarding ──────────────────────────────────── */
   if (!state.onboarded) {
     return (
       <OnboardingQuiz
