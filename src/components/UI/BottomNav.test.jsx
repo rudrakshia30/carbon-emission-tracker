@@ -14,7 +14,7 @@ describe('BottomNav Component', () => {
 
   it('applies active class to the current active tab', () => {
     render(<BottomNav activeTab="dashboard" onTabChange={vi.fn()} />);
-    
+
     const dashboardTab = screen.getByRole('tab', { name: /Dashboard/i });
     expect(dashboardTab).toHaveClass('bottom-nav__tab--active');
     expect(dashboardTab).toHaveAttribute('aria-selected', 'true');
