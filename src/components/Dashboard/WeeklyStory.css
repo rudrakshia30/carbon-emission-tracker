@@ -61,20 +61,23 @@
 
 .weekly-story__skeleton-line {
   height: 14px;
-  background: linear-gradient(
-    110deg,
-    rgba(255, 255, 255, 0.04) 30%,
-    rgba(255, 255, 255, 0.08) 50%,
-    rgba(255, 255, 255, 0.04) 70%
-  );
+  background: linear-gradient(110deg,
+      rgba(255, 255, 255, 0.04) 30%,
+      rgba(255, 255, 255, 0.08) 50%,
+      rgba(255, 255, 255, 0.04) 70%);
   background-size: 200% 100%;
   animation: story-shimmer 1.5s ease-in-out infinite;
   border-radius: 6px;
 }
 
 @keyframes story-shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 /* Generate button */
