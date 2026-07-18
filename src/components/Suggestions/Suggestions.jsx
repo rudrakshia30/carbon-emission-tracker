@@ -103,7 +103,7 @@ export default function Suggestions({ logs = [] }) {
           {activeSuggestion.title}
         </h2>
         <p className="sug-card__desc">{activeSuggestion.desc}</p>
-        
+
         <div className="sug-tips">
           {activeSuggestion.tips.map((tip, index) => (
             <div key={index} className="sug-tip">
