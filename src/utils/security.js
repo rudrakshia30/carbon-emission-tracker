@@ -120,42 +120,42 @@ export function validatePersistedState(raw) {
           // Validate rawTransport array
           const rawTransport = Array.isArray(l.rawTransport)
             ? l.rawTransport
-                .filter((t) => typeof t === 'object' && t !== null)
-                .map((t) => ({
-                  mode: ALLOWED_TRANSPORT_MODES.includes(t.mode) ? t.mode : 'car',
-                  distanceKm: clampNumber(t.distanceKm, 0, 10000, 0),
-                }))
+              .filter((t) => typeof t === 'object' && t !== null)
+              .map((t) => ({
+                mode: ALLOWED_TRANSPORT_MODES.includes(t.mode) ? t.mode : 'car',
+                distanceKm: clampNumber(t.distanceKm, 0, 10000, 0),
+              }))
             : [];
 
           // Validate meals array
           const meals = Array.isArray(l.meals)
             ? l.meals
-                .filter((m) => typeof m === 'object' && m !== null)
-                .map((m) => ({
-                  type: sanitizeString(m.type, 50),
-                  meal: ['breakfast', 'lunch', 'dinner'].includes(m.meal) ? m.meal : 'breakfast',
-                }))
+              .filter((m) => typeof m === 'object' && m !== null)
+              .map((m) => ({
+                type: sanitizeString(m.type, 50),
+                meal: ['breakfast', 'lunch', 'dinner'].includes(m.meal) ? m.meal : 'breakfast',
+              }))
             : [];
 
           // Validate rawEnergy object
           const rawEnergy = typeof l.rawEnergy === 'object' && l.rawEnergy !== null
             ? {
-                ac: clampNumber(l.rawEnergy.ac, 0, 24, 0),
-                heating: clampNumber(l.rawEnergy.heating, 0, 24, 0),
-                shower: !!l.rawEnergy.shower,
-                laundry: !!l.rawEnergy.laundry,
-                dishwasher: !!l.rawEnergy.dishwasher,
-              }
+              ac: clampNumber(l.rawEnergy.ac, 0, 24, 0),
+              heating: clampNumber(l.rawEnergy.heating, 0, 24, 0),
+              shower: !!l.rawEnergy.shower,
+              laundry: !!l.rawEnergy.laundry,
+              dishwasher: !!l.rawEnergy.dishwasher,
+            }
             : { ac: 0, heating: 0, shower: false, laundry: false, dishwasher: false };
 
           // Validate rawShopping object
           const rawShopping = typeof l.rawShopping === 'object' && l.rawShopping !== null
             ? Object.fromEntries(
-                Object.entries(l.rawShopping).map(([k, v]) => [
-                  sanitizeString(k, 50),
-                  clampNumber(v, 0, 100, 0),
-                ])
-              )
+              Object.entries(l.rawShopping).map(([k, v]) => [
+                sanitizeString(k, 50),
+                clampNumber(v, 0, 100, 0),
+              ])
+            )
             : {};
 
           return {
