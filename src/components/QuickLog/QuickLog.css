@@ -87,8 +87,15 @@
 }
 
 @keyframes ql-fade-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .ql-section-title {
@@ -176,9 +183,17 @@
 }
 
 @keyframes ql-card-pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.06); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.06);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* ─── Distance section ────────────────────────────────────── */
@@ -586,8 +601,15 @@
 }
 
 @keyframes ql-bounce-in {
-  0% { transform: scale(0.5); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 /* ─── Responsive ──────────────────────────────────────────── */
@@ -706,4 +728,3 @@
   border-color: var(--accent-green, #10b981);
   color: var(--accent-green, #10b981);
 }
-
