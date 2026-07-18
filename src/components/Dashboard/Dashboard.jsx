@@ -108,8 +108,8 @@ export default function Dashboard({ logs = [], streaks = { current: 0, best: 0 }
         <h3 className="dash-card-title">📊 Category Breakdown</h3>
         <div className="dash-categories">
           {Object.entries(CATEGORY_COLORS).map(([key, cfg]) => (
-            <div 
-              key={key} 
+            <div
+              key={key}
               className="dash-cat-row"
               role="progressbar"
               aria-valuenow={percentages[key] || 0}
