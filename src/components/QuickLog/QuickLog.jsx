@@ -356,8 +356,8 @@ export default function QuickLog({ onLog, emissionFactors, baselineScore = 22, e
                         ? '♻️ Zero CO₂'
                         : `+${modeCO2.toFixed(2)} kg CO₂`}
                     </span>
-                    <button 
-                      className="ql-distance-row__remove-btn" 
+                    <button
+                      className="ql-distance-row__remove-btn"
                       onClick={() => setTransportLogs(prev => {
                         const copy = { ...prev };
                         delete copy[modeId];
