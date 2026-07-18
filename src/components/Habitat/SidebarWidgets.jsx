@@ -11,23 +11,23 @@ const QUOTES = [
 ];
 
 const NEWS = [
-  { 
-    headline: "Global renewable capacity grew by 50% last year", 
+  {
+    headline: "Global renewable capacity grew by 50% last year",
     summary: "Solar power accounted for three-quarters of additions worldwide.",
     source: "IEA Energy Report"
   },
-  { 
-    headline: "EV sales reach new record highs in 2024", 
+  {
+    headline: "EV sales reach new record highs in 2024",
     summary: "Electric vehicles now make up over 20% of all new car sales globally.",
     source: "Global Auto Trends"
   },
-  { 
-    headline: "New carbon capture plant opens in Iceland", 
+  {
+    headline: "New carbon capture plant opens in Iceland",
     summary: "The facility aims to extract 36,000 tons of CO2 from the air every year.",
     source: "Climate Tech News"
   },
-  { 
-    headline: "Wind energy overtakes coal in Europe", 
+  {
+    headline: "Wind energy overtakes coal in Europe",
     summary: "For the first time, wind turbines generated more electricity than coal power plants in the EU.",
     source: "Euro Energy Stats"
   }
@@ -44,11 +44,11 @@ export default function SidebarWidgets({ microAction, onAcceptMicroAction }) {
     for (let i = 0; i < todayStr.length; i++) {
       hash = todayStr.charCodeAt(i) + ((hash << 5) - hash);
     }
-    
+
     const quoteIndex = Math.abs(hash) % QUOTES.length;
     const newsIndex1 = Math.abs(hash) % NEWS.length;
     const newsIndex2 = (newsIndex1 + 1) % NEWS.length;
-    
+
     setTimeout(() => {
       setQuoteOfDay(QUOTES[quoteIndex]);
       setNewsOfDay([NEWS[newsIndex1], NEWS[newsIndex2]]);
