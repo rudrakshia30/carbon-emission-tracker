@@ -58,8 +58,8 @@ describe('Insight Generator', () => {
     const logs = [
       { date: threeDaysAgo, totalCO2: 30, transport: 20, food: 10, energy: 0, shopping: 0 },
       { date: threeDaysAgo, totalCO2: 28, transport: 18, food: 10, energy: 0, shopping: 0 },
-      { date: yesterday,    totalCO2: 8,  transport: 3,  food: 5,  energy: 0, shopping: 0 },
-      { date: today,        totalCO2: 6,  transport: 2,  food: 4,  energy: 0, shopping: 0 },
+      { date: yesterday, totalCO2: 8, transport: 3, food: 5, energy: 0, shopping: 0 },
+      { date: today, totalCO2: 6, transport: 2, food: 4, energy: 0, shopping: 0 },
     ];
     const result = generateInsights(logs, 22);
     const improvInsight = result.find((i) => i.icon === '📈');
