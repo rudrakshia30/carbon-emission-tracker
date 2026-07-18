@@ -36,20 +36,23 @@
   position: absolute;
   inset: 0;
   border-radius: 20px;
-  background: linear-gradient(
-    110deg,
-    transparent 30%,
-    rgba(255, 255, 255, 0.04) 50%,
-    transparent 70%
-  );
+  background: linear-gradient(110deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.04) 50%,
+      transparent 70%);
   background-size: 200% 100%;
   animation: habitat-shimmer 1.8s ease-in-out infinite;
   pointer-events: none;
 }
 
 @keyframes habitat-shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 /* ── Health indicator glow ring (dynamic via inline style) ────────── */
