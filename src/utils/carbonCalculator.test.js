@@ -203,7 +203,7 @@ describe('Carbon Calculator Utilities', () => {
       const today = new Date();
       const yesterday = new Date(today);
       yesterday.setDate(today.getDate() - 1);
-      
+
       // Use getLocalDateString to build the date prefix, appending a local time
       // so the filter in getWeeklyTotals correctly matches local date
       const todayStr = getLocalDateString(today);
@@ -217,11 +217,11 @@ describe('Carbon Calculator Utilities', () => {
 
       const totals = getWeeklyTotals(logs);
       expect(totals.length).toBe(7); // Always returns 7 days
-      
+
       // Last element is today
       expect(totals[6].total).toBe(10.5);
       expect(totals[6].hasLog).toBe(true);
-      
+
       // Second to last is yesterday
       expect(totals[5].total).toBe(9.5); // 5.5 + 4.0
       expect(totals[5].hasLog).toBe(true);
