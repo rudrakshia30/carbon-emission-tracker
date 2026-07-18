@@ -35,19 +35,19 @@ const SKY_KEYS = [
 function lerpHexColor(a, b, t) {
   const ah = parseInt(a.slice(1), 16);
   const bh = parseInt(b.slice(1), 16);
-  
+
   const ar = (ah >> 16) & 0xff;
   const ag = (ah >> 8) & 0xff;
   const ab = ah & 0xff;
-  
+
   const br = (bh >> 16) & 0xff;
   const bg = (bh >> 8) & 0xff;
   const bb = bh & 0xff;
-  
+
   const rr = Math.round(ar + (br - ar) * t);
   const rg = Math.round(ag + (bg - ag) * t);
   const rb = Math.round(ab + (bb - ab) * t);
-  
+
   return `#${((1 << 24) + (rr << 16) + (rg << 8) + rb).toString(16).slice(1)}`;
 }
 
@@ -82,8 +82,8 @@ function seededRandom(seed) {
   };
 }
 
-const HabitatCanvas = forwardRef(function HabitatCanvasInner({ 
-  habitatState, 
+const HabitatCanvas = forwardRef(function HabitatCanvasInner({
+  habitatState,
   onReady,
   manualTime = null,
   windSpeed = 3,
@@ -94,7 +94,7 @@ const HabitatCanvas = forwardRef(function HabitatCanvasInner({
   const timeRef = useRef(0);
   const particlesRef = useRef([]);
   const containerRef = useRef(null);
-  
+
   // Cache layout size to avoid layout thrashing
   const widthRef = useRef(500);
   const heightRef = useRef(312);
@@ -188,7 +188,7 @@ const HabitatCanvas = forwardRef(function HabitatCanvasInner({
     const isDaylight = hour >= 6 && hour < 18.5;
     let celestialX;
     let celestialY;
-    
+
     if (isDaylight) {
       // Sun trajectory arc
       const sunAngle = ((hour - 6) / 12.5) * Math.PI;
@@ -204,7 +204,7 @@ const HabitatCanvas = forwardRef(function HabitatCanvasInner({
       ctx.beginPath();
       ctx.arc(celestialX, celestialY, 50, 0, Math.PI * 2);
       ctx.fill();
-      
+
       ctx.fillStyle = '#fef08a';
       ctx.beginPath();
       ctx.arc(celestialX, celestialY, 16, 0, Math.PI * 2);
@@ -230,7 +230,7 @@ const HabitatCanvas = forwardRef(function HabitatCanvasInner({
       ctx.beginPath();
       ctx.arc(celestialX, celestialY, 14, 0, Math.PI * 2);
       ctx.fill();
-      
+
       // Moon shadow/crescent cutout
       ctx.fillStyle = skyColors[1];
       ctx.beginPath();
@@ -327,12 +327,12 @@ const HabitatCanvas = forwardRef(function HabitatCanvasInner({
     for (let i = 0; i < treeCount; i++) {
       const tx = ix + (treeRng() - 0.5) * iw * 0.7;
       const ty = iy - ih * 0.08 + (treeRng() - 0.5) * ih * 0.3;
-      
+
       // Prevent drawing tree directly on top of the house coordinates
       const hx = ix + iw * 0.12;
       const hy = iy + ih * 0.05;
       const dist = Math.hypot(tx - hx, ty - hy);
-      
+
       if (showEcoHome && dist < 32) continue; // Skip trees overlapping the home
 
       const treeSize = 0.55 + treeRng() * 0.45;
@@ -353,7 +353,7 @@ const HabitatCanvas = forwardRef(function HabitatCanvasInner({
     for (let i = 0; i < flowerCount; i++) {
       const fx = ix + (flowerRng() - 0.5) * iw * 0.55;
       const fy = iy + (flowerRng() - 0.2) * ih * 0.28;
-      
+
       // Don't draw flowers under the house if active
       if (showEcoHome) {
         const hx = ix + iw * 0.12;
@@ -368,7 +368,7 @@ const HabitatCanvas = forwardRef(function HabitatCanvasInner({
       ctx.beginPath();
       ctx.arc(fx, fy, 1.8 + bloom * 2.2, 0, Math.PI * 2);
       ctx.fill();
-      
+
       // Tiny green stem
       ctx.strokeStyle = '#16a34a';
       ctx.lineWidth = 0.8;
@@ -453,7 +453,7 @@ const HabitatCanvas = forwardRef(function HabitatCanvasInner({
       } else {
         rect = container.getBoundingClientRect();
       }
-      
+
       // Guard: Do not resize to 0 when parent container is hidden (display: none)
       if (rect.width === 0 || rect.height === 0) return;
 
@@ -461,7 +461,7 @@ const HabitatCanvas = forwardRef(function HabitatCanvasInner({
       canvas.width = rect.width * dpr;
       canvas.height = rect.height * dpr;
       ctx.scale(dpr, dpr);
-      
+
       widthRef.current = rect.width;
       heightRef.current = rect.height;
     };
@@ -478,7 +478,7 @@ const HabitatCanvas = forwardRef(function HabitatCanvasInner({
 
     const loop = () => {
       if (!running) return;
-      
+
       if (isVisible && widthRef.current > 0 && heightRef.current > 0) {
         timeRef.current += 16;
         draw(ctx, widthRef.current, heightRef.current, timeRef.current);
@@ -605,7 +605,7 @@ function drawWindmill(ctx, x, y, size, t, windSpeed) {
   ctx.strokeStyle = '#cbd5e1';
   ctx.lineWidth = 1.8;
   ctx.lineCap = 'round';
-  
+
   for (let i = 0; i < 3; i++) {
     const angle = rotorSpeed + (i * Math.PI * 2) / 3;
     ctx.beginPath();
@@ -630,7 +630,7 @@ function drawEcoHome(ctx, x, y, scale, healthScore, t, windSpeed) {
     // Cabin body
     ctx.fillStyle = '#475569';
     ctx.fillRect(-12 * scale, -13 * scale, 24 * scale, 13 * scale);
-    
+
     // Rust streaks
     ctx.strokeStyle = '#78350f';
     ctx.lineWidth = 0.8;
@@ -657,7 +657,7 @@ function drawEcoHome(ctx, x, y, scale, healthScore, t, windSpeed) {
     // Chimney puffing heavy dark smoke
     ctx.fillStyle = '#334155';
     ctx.fillRect(7 * scale, -18 * scale, 3 * scale, 8 * scale);
-    
+
     const smokeOffset = (t * 0.035) % 15;
     ctx.fillStyle = 'rgba(75, 85, 99, 0.45)';
     ctx.beginPath();
@@ -702,7 +702,7 @@ function drawEcoHome(ctx, x, y, scale, healthScore, t, windSpeed) {
     // Chimney puffing light friendly vapor
     ctx.fillStyle = '#57534e';
     ctx.fillRect(-12 * scale, -21 * scale, 4 * scale, 10 * scale);
-    
+
     const smokeOffset = (t * 0.022) % 12;
     ctx.fillStyle = 'rgba(241, 245, 249, 0.28)';
     ctx.beginPath();
@@ -722,7 +722,7 @@ function drawEcoHome(ctx, x, y, scale, healthScore, t, windSpeed) {
     ctx.fillStyle = '#1e3a8a';
     ctx.fillRect(-13 * scale, -15 * scale, 10 * scale, 5 * scale);
     ctx.fillRect(3 * scale, -15 * scale, 10 * scale, 5 * scale);
-    
+
     ctx.strokeStyle = '#38bdf8';
     ctx.lineWidth = 0.6;
     ctx.strokeRect(-13 * scale, -15 * scale, 10 * scale, 5 * scale);
