@@ -171,14 +171,14 @@ export default function Leaderboard({
     if (newBadges.length > 0) {
       const firstNew = newBadges[0];
       let timer;
-      
+
       const setupTimer = setTimeout(() => {
         setNewlyUnlocked(firstNew);
         setShowConfetti(true);
         if (onUnlockBadge) {
           onUnlockBadge(firstNew);
         }
-        
+
         timer = setTimeout(() => {
           setShowConfetti(false);
           setNewlyUnlocked(null);
