@@ -28,7 +28,7 @@ describe('OnboardingQuiz Component', () => {
     expect(screen.getByText('What should we call you?')).toBeInTheDocument();
     const nameInput = screen.getByLabelText('Your name');
     expect(nameInput).toBeInTheDocument();
-    
+
     // Type name
     fireEvent.change(nameInput, { target: { value: 'Eco Explorer' } });
     const nameNextBtn = container.querySelector('#oq-btn-name-next');
@@ -44,7 +44,7 @@ describe('OnboardingQuiz Component', () => {
 
     // Step 3: Transport
     expect(screen.getByText('How do you get around?')).toBeInTheDocument();
-    
+
     // Choose Train mode
     const trainModeBtn = container.querySelector('#oq-transport-train');
     expect(trainModeBtn).toBeInTheDocument();
@@ -61,7 +61,7 @@ describe('OnboardingQuiz Component', () => {
     // Step 4: Diet
     expect(screen.getByText('What best describes your diet?')).toBeInTheDocument();
     const dietNextBtn = container.querySelector('#oq-btn-diet-next');
-    
+
     // Diet button should be disabled initially
     expect(dietNextBtn).toBeDisabled();
 
@@ -76,7 +76,7 @@ describe('OnboardingQuiz Component', () => {
 
     // Step 5: Energy
     expect(screen.getByText('Your home energy habits')).toBeInTheDocument();
-    
+
     // Adjust AC hours to 4
     const acSlider = container.querySelector('#oq-ac-slider');
     expect(acSlider).toBeInTheDocument();
