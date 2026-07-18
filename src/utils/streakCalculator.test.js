@@ -35,7 +35,7 @@ describe('Streak Calculator Utility', () => {
     const today = new Date();
     const yesterday = new Date();
     yesterday.setDate(today.getDate() - 1);
-    
+
     const logs = [
       { date: yesterday }, // yesterday
       { date: yesterday }, // yesterday duplicate
