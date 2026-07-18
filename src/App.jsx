@@ -175,29 +175,29 @@ function App() {
                 </div>
               </div>
 
-            <HabitatCanvas
-              ref={habitatRef}
-              habitatState={state.habitat}
-              manualTime={isRealTime ? null : manualTime}
-              windSpeed={windSpeed}
-              showEcoHome={showEcoHome}
-            />
+              <HabitatCanvas
+                ref={habitatRef}
+                habitatState={state.habitat}
+                manualTime={isRealTime ? null : manualTime}
+                windSpeed={windSpeed}
+                showEcoHome={showEcoHome}
+              />
 
-            <p className="app__habitat-name">
-              <strong>{decodeEntities(state.user.name)}'s</strong> island · {state.habitat.trees} trees · {state.habitat.flowers} flowers · Air: {state.habitat.smogLevel > 0.7 ? '🌫️ Smoggy' : state.habitat.smogLevel > 0.3 ? '🌤️ Hazy' : '☀️ Clear'} · Water: {state.habitat.waterClarity > 0.7 ? '💧 Crystal' : state.habitat.waterClarity > 0.3 ? '🌊 Cloudy' : '🟫 Murky'}
-            </p>
+              <p className="app__habitat-name">
+                <strong>{decodeEntities(state.user.name)}'s</strong> island · {state.habitat.trees} trees · {state.habitat.flowers} flowers · Air: {state.habitat.smogLevel > 0.7 ? '🌫️ Smoggy' : state.habitat.smogLevel > 0.3 ? '🌤️ Hazy' : '☀️ Clear'} · Water: {state.habitat.waterClarity > 0.7 ? '💧 Crystal' : state.habitat.waterClarity > 0.3 ? '🌊 Cloudy' : '🟫 Murky'}
+              </p>
 
-            {/* Simulation Controls Panel */}
-            <HabitatSimPanel
-              isRealTime={isRealTime}
-              manualTime={manualTime}
-              windSpeed={windSpeed}
-              showEcoHome={showEcoHome}
-              onRealTimeToggle={() => setIsRealTime(!isRealTime)}
-              onManualTimeChange={setManualTime}
-              onWindSpeedChange={setWindSpeed}
-              onEcoHomeToggle={() => setShowEcoHome(!showEcoHome)}
-            />
+              {/* Simulation Controls Panel */}
+              <HabitatSimPanel
+                isRealTime={isRealTime}
+                manualTime={manualTime}
+                windSpeed={windSpeed}
+                showEcoHome={showEcoHome}
+                onRealTimeToggle={() => setIsRealTime(!isRealTime)}
+                onManualTimeChange={setManualTime}
+                onWindSpeedChange={setWindSpeed}
+                onEcoHomeToggle={() => setShowEcoHome(!showEcoHome)}
+              />
 
             </div>
             <div className="app__habitat-sidebar">
